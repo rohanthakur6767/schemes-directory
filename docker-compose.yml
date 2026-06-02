@@ -1,0 +1,17 @@
+# Local dev database (first used in Phase 1). Prod is Neon Postgres — same
+# engine, so schema and queries are identical in both places.
+services:
+  db:
+    image: postgres:17
+    container_name: govtschemes-db
+    environment:
+      POSTGRES_USER: govtschemes
+      POSTGRES_PASSWORD: govtschemes
+      POSTGRES_DB: govtschemes
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
