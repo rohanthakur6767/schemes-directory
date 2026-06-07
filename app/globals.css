@@ -39,3 +39,45 @@ footer {
 a {
   color: var(--accent);
 }
+
+/* Scheme page */
+.key-facts {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.key-facts dt {
+  font-weight: 600;
+}
+
+.key-facts dd {
+  margin: 0;
+}
+
+.chips {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chips li {
+  background: #eef3fb;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.attribution {
+  color: var(--muted);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 2rem;
+}

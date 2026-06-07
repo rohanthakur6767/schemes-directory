@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
   // the canonical URL map 1:1 to that file on any static host — no /x vs /x/
   // duplicate-content ambiguity for SEO.
   trailingSlash: true,
+
+  // Don't bundle the postgres driver — it carries conditional imports (e.g.
+  // cloudflare:sockets) that confuse bundlers. It only runs at build time anyway.
+  serverExternalPackages: ['postgres'],
 };
 
 export default nextConfig;

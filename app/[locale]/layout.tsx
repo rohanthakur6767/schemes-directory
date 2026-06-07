@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { LOCALES, type Locale } from '@/lib/i18n';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 import '../globals.css';
 
 // Static export (D1): every locale is pre-rendered at build time; any other
@@ -13,6 +13,8 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
+  // Base for all relative canonical/hreflang URLs in generateMetadata calls.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${SITE_NAME} — Indian Government Schemes Directory`,
     template: `%s | ${SITE_NAME}`,

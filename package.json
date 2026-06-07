@@ -2,15 +2,21 @@
   "name": "govtschemes",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:up": "docker compose up -d db",
+    "db:migrate": "node --env-file=.env scripts/migrate.ts",
+    "db:seed": "node --env-file=.env scripts/seed.ts"
   },
   "dependencies": {
     "next": "^16.2.7",
+    "postgres": "^3.4.9",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
