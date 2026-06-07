@@ -178,10 +178,13 @@ type SchemeTranslation = {
       options derived from index (D17); ranks eligible>maybe then by benefit (D16).
 - ✅ *Ship test:* unit tests pass + real-data simulation correct. Pending: push + live URL.
 
-**Phase 3 — Faceted browse (no search server, D2)**
-- [ ] Reuse the Phase 2 JSON index; filter by state × category × beneficiary, client-side.
-- [ ] Filter state synced to URL (shareable / SEO-able).
-- ✅ *Ship test:* combined filters return correct subsets instantly.
+**Phase 3 — Faceted browse (no search server, D2)** ✅ BUILT (deploy pending)
+- [x] Pure facet engine (`lib/facets.ts`), 8 unit tests. OR within group, AND across (D19).
+      `beneficiaries` derived at build time from eligibility (D21), added to the index.
+- [x] Browse page `/[locale]/schemes/` (`Browse.tsx`): 3 checkbox facets with per-option
+      counts that respect other groups; reuses the Phase 2 index (one fetch, no server).
+- [x] Selection synced to URL via `URLSearchParams` + `replaceState` (shareable).
+- ✅ *Ship test:* unit tests pass; build verified (browse + detail coexist). Pending: live.
 
 **Phase 4 — Data pipeline (the risky phase — go slow)**
 - [ ] **First:** register on API Setu, fetch **ONE** record, show raw JSON before mapping.
@@ -262,6 +265,16 @@ type SchemeTranslation = {
 - **D18 — `node --test` + Node 24 type-stripping for tests; no jest/vitest.** Requires
   explicit `.ts` on relative imports in `lib/`+`scripts/` (`allowImportingTsExtensions`);
   the bundler accepts them too. Zero test deps.
+
+- **D19 — Facet logic: OR within a group, AND across groups.** Standard faceted-search
+  behaviour. Per-option counts reflect the OTHER groups' selections (not the group's own),
+  so you never tick into zero results.
+- **D20 — Browse `state` is a PROPERTY filter, not relevance.** Selecting "MP" shows MP
+  schemes only (not MP + central). The checker already answers "what's relevant to me";
+  the browse page is a predictable catalog explorer with honest counts. Two tools, two jobs.
+- **D21 — `beneficiaries` derived at build time** from structured eligibility
+  (`deriveBeneficiaries`), stored in the index for the browse facet. Heuristic on 10 seeds
+  (cf. D11); revisit with real data in Phase 4. Matcher ignores the field (kept decoupled).
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

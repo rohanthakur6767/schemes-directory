@@ -42,6 +42,7 @@ export default async function RootLayout({
       <body>
         <nav className="site-nav">
           <a href={`/${locale}/`}>{SITE_NAME}</a>
+          <a href={`/${locale}/schemes/`}>Browse schemes</a>
           <a href={`/${locale}/checker/`}>Eligibility checker</a>
         </nav>
         <main>{children}</main>

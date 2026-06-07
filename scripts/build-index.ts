@@ -4,6 +4,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { LOCALES } from '../lib/i18n.ts';
 import { getPublishedSchemes } from '../lib/schemes.ts';
+import { deriveBeneficiaries } from '../lib/facets.ts';
 import { sql } from '../lib/db.ts';
 
 for (const locale of LOCALES) {
@@ -20,6 +21,8 @@ for (const locale of LOCALES) {
     categories: s.categories,
     benefit: s.benefit,
     eligibility: s.eligibility,
+    // Derived facet for the browse page (D21). Computed once, here.
+    beneficiaries: deriveBeneficiaries(s.eligibility),
   }));
   const dir = new URL(`../public/index/${locale}/`, import.meta.url);
   await mkdir(dir, { recursive: true });
