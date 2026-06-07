@@ -69,4 +69,16 @@ export const ProseSchema = z.strictObject({
 
 export type Prose = z.infer<typeof ProseSchema>;
 
-export type SchemeWithProse = Scheme & { prose: Prose };
+// Deeper content (D33), stored per-locale as jsonb. Optional with [] default so
+// older rows / seeds without them stay valid.
+export const FaqSchema = z.strictObject({ q: z.string().min(1), a: z.string().min(1) });
+export type Faq = z.infer<typeof FaqSchema>;
+
+export const ApplyStepsSchema = z.array(z.string().min(1));
+export const FaqsSchema = z.array(FaqSchema);
+
+export type SchemeWithProse = Scheme & {
+  prose: Prose;
+  apply_steps: string[];
+  faqs: Faq[];
+};

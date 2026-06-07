@@ -98,6 +98,17 @@ export default async function SchemePage({ params }: Props) {
           { '@type': 'ListItem', position: primaryCategory ? 3 : 2, name: scheme.prose.name, item: pageUrl },
         ],
       },
+      // FAQPage → eligible for Google's FAQ rich result (D33).
+      ...(scheme.faqs.length > 0
+        ? [{
+            '@type': 'FAQPage',
+            mainEntity: scheme.faqs.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          }]
+        : []),
     ],
   };
 
@@ -156,6 +167,13 @@ export default async function SchemePage({ params }: Props) {
           <section id="apply" className="card">
             <h2>How to apply</h2>
             <p>{scheme.prose.how_to_apply}</p>
+            {scheme.apply_steps.length > 0 && (
+              <ol className="steps">
+                {scheme.apply_steps.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+            )}
             <a className="cta" href={scheme.official_url} target="_blank" rel="noopener noreferrer">
               Apply on the official website ↗
             </a>
@@ -169,6 +187,20 @@ export default async function SchemePage({ params }: Props) {
                   <li key={d}>{d}</li>
                 ))}
               </ul>
+            </section>
+          )}
+
+          {scheme.faqs.length > 0 && (
+            <section id="faqs" className="card">
+              <h2>Frequently asked questions</h2>
+              <div className="faqs">
+                {scheme.faqs.map((f, i) => (
+                  <details key={i}>
+                    <summary>{f.q}</summary>
+                    <p>{f.a}</p>
+                  </details>
+                ))}
+              </div>
             </section>
           )}
 
@@ -224,6 +256,7 @@ export default async function SchemePage({ params }: Props) {
             <a href="#eligibility">Who can apply</a>
             <a href="#apply">How to apply</a>
             {scheme.documents.length > 0 && <a href="#documents">Documents</a>}
+            {scheme.faqs.length > 0 && <a href="#faqs">FAQs</a>}
             {glossary.length > 0 && <a href="#terms">Key terms</a>}
           </nav>
         </aside>

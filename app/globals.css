@@ -316,6 +316,56 @@ a {
   font-size: 0.92rem;
 }
 
+/* Application steps */
+.steps {
+  margin: 1rem 0 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: 0.6rem;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.4rem;
+  min-height: 1.7rem;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.7rem;
+  height: 1.7rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* FAQs */
+.faqs details {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.faqs summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.faqs details[open] summary {
+  margin-bottom: 0.5rem;
+}
+.faqs p {
+  margin: 0;
+  color: var(--muted);
+}
+
 /* Glossary / key terms */
 .glossary {
   margin: 0;

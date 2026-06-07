@@ -59,3 +59,6 @@ alter table scheme_translations add column if not exists review_status text
 -- Idempotent, so it self-heals on every migrate.
 update scheme_translations set review_status = 'published'
   where status = 'published' and review_status <> 'published';
+-- Deeper per-locale content (D33): numbered application steps + FAQs.
+alter table scheme_translations add column if not exists apply_steps jsonb not null default '[]';
+alter table scheme_translations add column if not exists faqs jsonb not null default '[]';

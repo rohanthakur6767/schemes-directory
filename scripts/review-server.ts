@@ -30,7 +30,7 @@ async function nextItem() {
   const [row] = await db`
     select s.id, s.slug, s.name, s.level, s.state, s.categories, s.benefit, s.eligibility,
            s.documents, s.official_url, s.source, s.source_snapshot_date::text, s.llm_notes,
-           t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply
+           t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply, t.apply_steps, t.faqs
     from schemes s
     join scheme_translations t on t.scheme_id = s.id and t.locale = 'en'
     where t.review_status = 'pending'
@@ -62,10 +62,13 @@ async function save(b: any, publish: boolean) {
       updated_at = now()
     where id = ${b.id}`;
 
+  const applySteps = Array.isArray(b.apply_steps) ? b.apply_steps : [];
+  const faqs = Array.isArray(b.faqs) ? b.faqs : [];
   await db`
     update scheme_translations set
       name = ${b.name}, summary = ${b.summary}, eligibility_prose = ${b.eligibility_prose},
       benefits_prose = ${b.benefits_prose}, how_to_apply = ${b.how_to_apply},
+      apply_steps = ${db.json(applySteps)}, faqs = ${db.json(faqs)},
       status = ${publish ? 'published' : 'llm_unverified'},
       review_status = ${publish ? 'published' : 'pending'},
       updated_at = now()

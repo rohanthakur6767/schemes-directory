@@ -2,6 +2,8 @@ import { sql } from './db.ts';
 import {
   ProseSchema,
   SchemeSchema,
+  ApplyStepsSchema,
+  FaqsSchema,
   type SchemeWithProse,
 } from './types.ts';
 import type { Locale } from './i18n.ts';
@@ -19,7 +21,8 @@ const SELECT = `
     s.id, s.slug, s.name, s.level, s.state, s.categories,
     s.benefit, s.eligibility, s.documents, s.official_url, s.source,
     s.last_verified::text as last_verified,
-    t.name as t_name, t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply
+    t.name as t_name, t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply,
+    t.apply_steps, t.faqs
   from schemes s
   join scheme_translations t
     on t.scheme_id = s.id and t.locale = $1 and t.status = 'published'
@@ -62,5 +65,8 @@ function parseRow(r: any): SchemeWithProse {
     benefits_prose: r.benefits_prose,
     how_to_apply: r.how_to_apply,
   });
-  return { ...scheme, prose };
+  // jsonb arrives already parsed; validate with defaults so old rows are fine.
+  const apply_steps = ApplyStepsSchema.parse(r.apply_steps ?? []);
+  const faqs = FaqsSchema.parse(r.faqs ?? []);
+  return { ...scheme, prose, apply_steps, faqs };
 }

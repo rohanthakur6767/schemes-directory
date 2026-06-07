@@ -55,16 +55,21 @@ for (const file of files) {
       updated_at = now()
   `;
 
+  const applySteps = Array.isArray(d.apply_steps) ? d.apply_steps : [];
+  const faqs = Array.isArray(d.faqs) ? d.faqs : [];
   await db`
     insert into scheme_translations (scheme_id, locale, name, summary, eligibility_prose,
-                                     benefits_prose, how_to_apply, status, review_status)
+                                     benefits_prose, how_to_apply, apply_steps, faqs,
+                                     status, review_status)
     values (${id}, 'en', ${d.name}, ${d.prose?.summary ?? ''}, ${d.prose?.eligibility_prose ?? ''},
             ${d.prose?.benefits_prose ?? ''}, ${d.prose?.how_to_apply ?? ''},
+            ${db.json(applySteps)}, ${db.json(faqs)},
             ${hasProse ? 'llm_unverified' : 'missing'}, 'pending')
     on conflict (scheme_id, locale) do update set
       name = excluded.name, summary = excluded.summary,
       eligibility_prose = excluded.eligibility_prose, benefits_prose = excluded.benefits_prose,
-      how_to_apply = excluded.how_to_apply, status = excluded.status,
+      how_to_apply = excluded.how_to_apply, apply_steps = excluded.apply_steps,
+      faqs = excluded.faqs, status = excluded.status,
       review_status = excluded.review_status, updated_at = now()
   `;
   console.log(`import ${id} (${hasProse ? 'llm_unverified' : 'missing'})`);

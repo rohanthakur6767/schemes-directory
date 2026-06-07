@@ -9,18 +9,30 @@ export const ProseResultSchema = z.strictObject({
   eligibility_prose: z.string(),
   benefits_prose: z.string(),
   how_to_apply: z.string(),
+  apply_steps: z.array(z.string()),
+  faqs: z.array(z.strictObject({ question: z.string(), answer: z.string() })),
 });
 export type ProseResult = z.infer<typeof ProseResultSchema>;
 
 export const PROSE_SCHEMA: JsonSchema = {
   type: 'object',
   additionalProperties: false,
-  required: ['summary', 'eligibility_prose', 'benefits_prose', 'how_to_apply'],
+  required: ['summary', 'eligibility_prose', 'benefits_prose', 'how_to_apply', 'apply_steps', 'faqs'],
   properties: {
     summary: { type: 'string' },
     eligibility_prose: { type: 'string' },
     benefits_prose: { type: 'string' },
     how_to_apply: { type: 'string' },
+    apply_steps: { type: 'array', items: { type: 'string' } },
+    faqs: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['question', 'answer'],
+        properties: { question: { type: 'string' }, answer: { type: 'string' } },
+      },
+    },
   },
 };
 
@@ -33,7 +45,9 @@ export const PROSE_SYSTEM = [
   '- summary: one sentence, ≤160 characters, for search snippets and cards.',
   '- eligibility_prose: who can apply and key exclusions, 2–4 sentences.',
   '- benefits_prose: what the beneficiary gets, 1–3 sentences.',
-  '- how_to_apply: the application route in brief, 1–3 sentences.',
+  '- how_to_apply: a 1–2 sentence intro to the application route.',
+  '- apply_steps: the application as 3–7 short ordered steps (each a clear imperative like "Visit pmkisan.gov.in and open New Farmer Registration"). Base them on the source; if the source lacks steps, give the realistic standard route. Do NOT number them yourself — just the step text.',
+  '- faqs: 3–6 genuinely useful question/answer pairs a citizen would ask (eligibility edge-cases, documents, timelines, common confusions). Answers 1–3 sentences, in your own words, grounded in the source. No fabricated specifics.',
 ].join('\n');
 
 // Compact the structured facts into a prompt block so the model rewrites from

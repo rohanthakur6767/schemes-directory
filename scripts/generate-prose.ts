@@ -26,9 +26,17 @@ for (const slug of slugs) {
   };
   try {
     const raw = await callJSON(PROSE_SYSTEM, proseUserPrompt(facts, src.text), 'scheme_prose', PROSE_SCHEMA);
-    parsed.prose = ProseResultSchema.parse(raw);
+    const r = ProseResultSchema.parse(raw);
+    parsed.prose = {
+      summary: r.summary,
+      eligibility_prose: r.eligibility_prose,
+      benefits_prose: r.benefits_prose,
+      how_to_apply: r.how_to_apply,
+    };
+    parsed.apply_steps = r.apply_steps;
+    parsed.faqs = r.faqs.map((f) => ({ q: f.question, a: f.answer })); // store as {q,a}
     await writeFile(new URL(`${slug}.json`, PARSED), JSON.stringify(parsed, null, 2));
-    console.log('ok —', parsed.prose.summary);
+    console.log(`ok — ${r.apply_steps.length} steps, ${r.faqs.length} FAQs — ${r.summary}`);
   } catch (err) {
     console.log(`FAILED: ${(err as Error).message}`);
   }
