@@ -246,8 +246,16 @@ type SchemeTranslation = {
       + sticky sidebar (bold benefit-amount card, key facts, official-site CTA, "on this page"
       jump-nav). Responsive (stacks on mobile). Verified via preview screenshots desktop+mobile.
       Original design — govtschemes.in used only for section-structure reference, no copying (§2).
+- [x] **Definitions glossary (D31):** hand-written plain-English defs of scheme jargon
+      (`lib/glossary.ts`, 4 tests). A "Key terms explained" card shows only the terms that
+      appear on each scheme page. ORIGINAL content → publishable everywhere (no review gate).
+- [x] **Category icons (D32):** emoji icon per canonical category (`lib/categoryIcons.ts`)
+      on hero badges + home category links. Zero copyright risk; swappable for SVGs later.
+- [ ] **NEXT — deeper scheme content (the "details + guidance" ask):** add `faqs` +
+      `apply_steps` to `scheme_translations`; generate from source PDFs; render FAQ section
+      (+FAQPage JSON-LD rich results) and numbered apply steps; add to review tool. Generate
+      for the 16 PENDING first (no D5 issue); enrich the 18 published later via re-review.
 - [ ] Performance + mobile pass (broader: home/browse/checker polish).
-- [ ] FUTURE: "How to apply" as numbered steps (needs a small data-model change — steps[]).
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**
@@ -364,6 +372,14 @@ type SchemeTranslation = {
   free-text LLM fields drift; constrain them to a vocabulary. (Note: `Housing` canonical exists
   but isn't yet populated — the home-loan scheme's source labels didn't say "housing"; reviewer
   can add it via the picker.)
+
+- **D31 — Definitions glossary is hand-authored, not LLM** (2026-06-07). Plain-English defs
+  of jargon (DBT, Aadhaar, eKYC, BPL, SECC, SC/ST/OBC…) in `lib/glossary.ts`; each scheme page
+  shows only the terms found in its prose. Hand-written = our content = publishable with no
+  review gate, so it lifts ALL pages immediately (trust + comprehension + unique SEO content).
+- **D32 — Category icons via emoji** (not SVG, for now). Standardised glyphs, zero copyright
+  risk, consistent on modern devices, instant. Map in `lib/categoryIcons.ts`; callers read it,
+  so a future swap to branded SVGs touches one file.
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

@@ -6,6 +6,8 @@ import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { getPublishedScheme, getPublishedSchemes } from '@/lib/schemes';
 import { eligibilityFacts, formatINR } from '@/lib/format';
 import { slugify } from '@/lib/hubs';
+import { findGlossaryTerms } from '@/lib/glossary';
+import { iconFor } from '@/lib/categoryIcons';
 
 const FREQ_LABEL: Record<string, string> = {
   one_time: 'one-time',
@@ -60,6 +62,10 @@ export default async function SchemePage({ params }: Props) {
 
   const facts = eligibilityFacts(scheme.eligibility);
   const primaryCategory = scheme.categories[0];
+  // Definitions for any jargon that appears in this scheme's prose (D31).
+  const glossary = findGlossaryTerms(
+    [scheme.prose.eligibility_prose, scheme.prose.benefits_prose, scheme.prose.how_to_apply, scheme.prose.summary].join(' '),
+  );
   const pageUrl = `${SITE_URL}/${locale}/schemes/${scheme.slug}/`;
   const b = scheme.benefit;
 
@@ -120,7 +126,7 @@ export default async function SchemePage({ params }: Props) {
           )}
           {scheme.categories.map((c) => (
             <Link key={c} className="badge badge-cat" href={`/${locale}/category/${slugify(c)}/`}>
-              {c}
+              <span aria-hidden>{iconFor(c)}</span> {c}
             </Link>
           ))}
         </div>
@@ -166,6 +172,20 @@ export default async function SchemePage({ params }: Props) {
             </section>
           )}
 
+          {glossary.length > 0 && (
+            <section id="terms" className="card">
+              <h2>Key terms explained</h2>
+              <dl className="glossary">
+                {glossary.map((g) => (
+                  <div key={g.term}>
+                    <dt>{g.term}</dt>
+                    <dd>{g.definition}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
           {/* PLAN §2: attribution + verification status on every page. */}
           <p className="attribution">
             Source: {scheme.source}.{' '}
@@ -204,6 +224,7 @@ export default async function SchemePage({ params }: Props) {
             <a href="#eligibility">Who can apply</a>
             <a href="#apply">How to apply</a>
             {scheme.documents.length > 0 && <a href="#documents">Documents</a>}
+            {glossary.length > 0 && <a href="#terms">Key terms</a>}
           </nav>
         </aside>
       </div>

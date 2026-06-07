@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Locale } from '@/lib/i18n';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
+import { iconFor } from '@/lib/categoryIcons';
 
 export default async function HomePage({
   params,
@@ -28,7 +29,8 @@ export default async function HomePage({
         {categories.map((h) => (
           <li key={h.slug}>
             <Link href={`/${locale}/category/${h.slug}/`}>
-              {h.label} <span className="count">({h.schemes.length})</span>
+              <span aria-hidden>{iconFor(h.label)}</span> {h.label}{' '}
+              <span className="count">({h.schemes.length})</span>
             </Link>
           </li>
         ))}
