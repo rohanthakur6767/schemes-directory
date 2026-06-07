@@ -455,5 +455,11 @@ type SchemeTranslation = {
   fixed a dead CSS selector (`.nav-search` → `.search-nav`) so the nav search is sized
   correctly. (Did NOT use `overflow-x:hidden` on body — it would break the sticky sidebars.)
 
+- **D42 — One search per page** (2026-06-07). The home page showed TWO search bars (hero +
+  nav) — redundant, and the nav one's placeholder truncated. Fix: hide the nav search on the
+  home page via `body:has(.hero) .search-nav { display:none }` (`.hero` exists only on home —
+  CSS-only, route-aware, no hydration risk); nav search still shows on every other page.
+  Nav-variant placeholder shortened to "Search schemes…" so it never truncates.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

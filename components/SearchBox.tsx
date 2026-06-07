@@ -66,7 +66,11 @@ export default function SearchBox({
       <input
         type="search"
         className="search-input"
-        placeholder="Search schemes — e.g. farmer, scholarship, pension"
+        placeholder={
+          variant === 'hero'
+            ? 'Search schemes — e.g. farmer, scholarship, pension'
+            : 'Search schemes…'
+        }
         value={q}
         onFocus={() => {
           load();

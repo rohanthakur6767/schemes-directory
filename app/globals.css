@@ -169,6 +169,12 @@ a {
   min-width: 8rem;
   max-width: 22rem;
 }
+/* The home page has a big hero search, so the nav search there is redundant.
+   .hero only exists on the home page → hide the nav search when it's present.
+   (Nav search still shows on every other page = persistent across the site.) */
+body:has(.hero) .search-nav {
+  display: none;
+}
 .search-nav .search-input {
   padding: 0.45rem 0.7rem;
   font-size: 0.92rem;
