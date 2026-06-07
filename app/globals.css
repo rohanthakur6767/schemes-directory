@@ -1,6 +1,8 @@
 /* D8: plain CSS, no framework. Custom properties = our tiny design system. */
 :root {
-  --max-width: 72rem;
+  /* ONE source of truth for page width (D43). ~1280px, SaaS-standard. */
+  --container: 80rem;
+  --container-pad: clamp(1rem, 2.5vw, 1.5rem);
   --text: #1f2937;
   --muted: #5b6675;
   --accent: #1b4f9c;
@@ -32,19 +34,41 @@ body {
   line-height: 1.6;
 }
 
-main {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
+/* THE shared container. Used by the navbar, main content, and footer so every
+   section starts/ends on the exact same vertical lines. */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
 }
 
-footer {
-  max-width: var(--max-width);
-  margin: 2rem auto 0;
-  padding: 1rem;
+/* main carries the container (via class) + vertical rhythm. */
+main {
+  padding-block: 2rem;
+}
+
+/* Full-width sticky header bar; its inner nav uses .container to align with content. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Full-width footer bar; inner content uses .container. */
+.site-footer {
   border-top: 1px solid var(--border);
+  background: var(--card);
+  margin-top: 3rem;
   color: var(--muted);
   font-size: 0.875rem;
+}
+.footer-inner {
+  padding-block: 1.5rem;
 }
 
 a {
@@ -408,22 +432,13 @@ body:has(.hero) .search-nav {
   font-weight: 600;
 }
 
-/* Nav */
+/* Nav content (inside .site-header). Width/centering/padding come from .container. */
 .site-nav {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0.75rem 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  position: relative;
-  z-index: 30; /* nav search dropdown overlays the page (incl. the hero) */
-}
-
-.site-nav {
-  background: var(--card);
+  padding-block: 0.85rem;
 }
 
 .site-nav a {

@@ -461,5 +461,15 @@ type SchemeTranslation = {
   CSS-only, route-aware, no hydration risk); nav search still shows on every other page.
   Nav-variant placeholder shortened to "Search schemes…" so it never truncates.
 
+- **D43 — Single container system (SaaS layout)** (2026-06-07). Replaced per-element
+  max-widths (nav/main/footer each separately `max-width: 72rem`) with ONE `.container` class
+  (`max-width: var(--container) = 80rem ≈ 1280px; margin-inline:auto; padding-inline:
+  clamp(1rem,2.5vw,1.5rem)`) used by nav, main, footer-inner. Navbar is now a FULL-WIDTH
+  STICKY `.site-header` whose inner `.site-nav.container` aligns its content exactly with the
+  hero + page content (verified: nav content, hero, sections all at the same left/right px,
+  desktop + mobile, 0 overflow). Why the old empty space: width capped at 72rem (1152px) —
+  too narrow on modern screens — and the nav was a centered 72rem bar rather than a full-width
+  header, so it read as misaligned. To change page width, edit ONE var: `--container`.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

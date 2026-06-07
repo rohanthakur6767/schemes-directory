@@ -46,33 +46,37 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body>
-        <nav className="site-nav">
-          <a className="brand" href={`/${locale}/`}>{SITE_NAME}</a>
-          <a href={`/${locale}/schemes/`}>Browse</a>
-          <a href={`/${locale}/checker/`}>Checker</a>
-          <div className="nav-search">
-            <SearchBox locale={locale} variant="nav" />
-          </div>
-        </nav>
-        <main>{children}</main>
-        {/* §2: site-wide disclaimer + attribution, required from day one. */}
-        <footer>
-          <nav className="footer-links">
-            <a href={`/${locale}/about/`}>About</a>
-            <a href={`/${locale}/privacy/`}>Privacy Policy</a>
-            <a href={`/${locale}/disclaimer/`}>Disclaimer</a>
-            <a href={`/${locale}/contact/`}>Contact</a>
+        <header className="site-header">
+          <nav className="site-nav container">
+            <a className="brand" href={`/${locale}/`}>{SITE_NAME}</a>
+            <a href={`/${locale}/schemes/`}>Browse</a>
+            <a href={`/${locale}/checker/`}>Checker</a>
+            <div className="nav-search">
+              <SearchBox locale={locale} variant="nav" />
+            </div>
           </nav>
-          <p>
-            {SITE_NAME} is an independent informational website. We are not
-            affiliated with, or endorsed by, the Government of India or any
-            state government. Scheme details can change — always verify on the
-            official source linked on each page before applying.
-          </p>
-          <p>
-            Data compiled from official government sources (Open Government
-            Data licence — GODL-India), rewritten and verified by us.
-          </p>
+        </header>
+        <main className="container">{children}</main>
+        {/* §2: site-wide disclaimer + attribution, required from day one. */}
+        <footer className="site-footer">
+          <div className="footer-inner container">
+            <nav className="footer-links">
+              <a href={`/${locale}/about/`}>About</a>
+              <a href={`/${locale}/privacy/`}>Privacy Policy</a>
+              <a href={`/${locale}/disclaimer/`}>Disclaimer</a>
+              <a href={`/${locale}/contact/`}>Contact</a>
+            </nav>
+            <p>
+              {SITE_NAME} is an independent informational website. We are not
+              affiliated with, or endorsed by, the Government of India or any
+              state government. Scheme details can change — always verify on the
+              official source linked on each page before applying.
+            </p>
+            <p>
+              Data compiled from official government sources (Open Government
+              Data licence — GODL-India), rewritten and verified by us.
+            </p>
+          </div>
         </footer>
       </body>
     </html>
