@@ -1,11 +1,16 @@
 /* D8: plain CSS, no framework. Custom properties = our tiny design system. */
 :root {
   --max-width: 72rem;
-  --text: #1a1a1a;
-  --muted: #555;
-  --accent: #1a5fb4;
-  --bg: #ffffff;
-  --border: #e2e2e2;
+  --text: #1f2937;
+  --muted: #5b6675;
+  --accent: #1b4f9c;
+  --accent-dark: #143a73;
+  --success: #1a7f37;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 * {
@@ -92,8 +97,223 @@ a {
   border-bottom: 1px solid var(--border);
 }
 
+.site-nav {
+  background: var(--card);
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: var(--text);
+}
+
 .site-nav a:first-child {
   font-weight: 700;
+  color: var(--accent);
+}
+
+/* ============================ Scheme page ============================ */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.breadcrumbs a {
+  text-decoration: none;
+}
+.breadcrumbs .current {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.scheme-hero {
+  margin-bottom: 1.5rem;
+}
+.scheme-hero h1 {
+  margin: 0.5rem 0 0.5rem;
+  font-size: 1.9rem;
+  line-height: 1.2;
+}
+.scheme-hero .lede {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.badge-level {
+  background: var(--accent);
+  color: #fff;
+}
+.badge-cat {
+  background: #eef2fb;
+  color: var(--accent-dark);
+  border: 1px solid #dce4f5;
+}
+
+.scheme-grid {
+  display: grid;
+  grid-template-columns: 1fr 20rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 56rem) {
+  .scheme-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scheme-main .card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.scheme-main .card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eef2fb;
+}
+.scheme-main .card p {
+  margin: 0;
+  max-width: 65ch;
+}
+.scheme-main .card .chips {
+  margin-bottom: 0.85rem;
+}
+
+.doc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+.doc-list li {
+  padding-left: 1.6rem;
+  position: relative;
+}
+.doc-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.cta {
+  display: inline-block;
+  margin-top: 1rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+}
+.cta:hover {
+  background: var(--accent-dark);
+}
+.cta-block {
+  display: block;
+  text-align: center;
+  margin-top: 0;
+}
+
+/* Sticky sidebar */
+.scheme-aside {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (max-width: 56rem) {
+  .scheme-aside {
+    position: static;
+  }
+}
+.facts-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+}
+.benefit-amount {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--success);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.benefit-amount span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.benefit-amount-text {
+  font-size: 1.05rem;
+  color: var(--text);
+}
+.facts-dl {
+  margin: 0 0 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+.facts-dl dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+.facts-dl dd {
+  margin: 0;
+}
+.cap {
+  text-transform: capitalize;
+}
+
+.toc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.toc-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.toc a {
+  text-decoration: none;
+  font-size: 0.92rem;
 }
 
 /* Checker */

@@ -204,7 +204,10 @@ type SchemeTranslation = {
       8 drafts imported `llm_unverified`/`pending`; derives official_url; normalises the
       "null"-string quirk (D27) + reconciles level/state for the DB CHECK. NEVER clobbers a
       published scheme (verified seeds protected). Build confirmed: 8 drafts, 0 leak (D5).
-- [ ] **Scale to pilot (~100, D7):** repeat download→extract→parse→prose→import in batches.
+- [~] **Scale to pilot (~100, D7):** batch 2 done (16 high-value central + state schemes:
+      PM-KUSUM/POSHAN/GKAY/DAKSH/YASASVI, scholarships, housing, farmer insurance). Pipeline
+      scaled with zero new bugs; categories auto-normalised; published protected. State now:
+      18 published + 16 pending review. Repeat batches → 100. Dataset has ~2066 schemes.
 - [ ] **Parallel (owner):** register on API Setu, fetch ONE record → evaluate as future feed.
 - ✅ *Ship test (10-scheme slice):* drafts in DB, excluded from site; review tool clears them.
 
@@ -238,7 +241,13 @@ type SchemeTranslation = {
       canonical) + mapping, enforced in 3 places — normalizer (`npm run normalize-categories`,
       fixed existing 16 schemes, 0 unmapped), importer, parse prompt, AND a checkbox picker in
       the review tool. Hubs: 28 → 15. 6 unit tests.
-- [ ] Performance + mobile pass.
+- [x] **Scheme page redesign (clean UX):** breadcrumbs (+BreadcrumbList JSON-LD), badges,
+      two-column layout — section cards (Benefits / Who can apply / How to apply / Documents)
+      + sticky sidebar (bold benefit-amount card, key facts, official-site CTA, "on this page"
+      jump-nav). Responsive (stacks on mobile). Verified via preview screenshots desktop+mobile.
+      Original design — govtschemes.in used only for section-structure reference, no copying (§2).
+- [ ] Performance + mobile pass (broader: home/browse/checker polish).
+- [ ] FUTURE: "How to apply" as numbered steps (needs a small data-model change — steps[]).
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**
