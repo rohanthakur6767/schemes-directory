@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   description:
     'Find central and state government schemes in India you may be eligible for. ' +
     'Original, verified summaries with links to official sources.',
+  openGraph: {
+    siteName: SITE_NAME,
+    type: 'website',
+    locale: 'en_IN',
+  },
 };
 
 // This IS the root layout — it lives inside [locale] (standard i18n pattern)

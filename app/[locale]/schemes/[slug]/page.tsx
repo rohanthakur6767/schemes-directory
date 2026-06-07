@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { LOCALES, type Locale } from '@/lib/i18n';
-import { SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { getPublishedScheme, getPublishedSchemes } from '@/lib/schemes';
 import { benefitLine, eligibilityFacts } from '@/lib/format';
+import { slugify } from '@/lib/hubs';
 
 export const dynamicParams = false;
 
@@ -35,6 +37,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ...Object.fromEntries(LOCALES.map((l) => [l, path(l)])),
         'x-default': path('en'),
       },
+    },
+    openGraph: {
+      title: `${scheme.prose.name} | ${SITE_NAME}`,
+      description: scheme.prose.summary,
+      type: 'article',
+      url: path(locale),
     },
   };
 }
@@ -75,9 +83,26 @@ export default async function SchemePage({ params }: Props) {
 
       <dl className="key-facts">
         <dt>Level</dt>
-        <dd>{scheme.level === 'central' ? 'Central scheme' : `State scheme — ${scheme.state}`}</dd>
+        <dd>
+          {scheme.level === 'central' ? (
+            'Central scheme'
+          ) : (
+            <>
+              State scheme —{' '}
+              <Link href={`/${locale}/state/${slugify(scheme.state!)}/`}>{scheme.state}</Link>
+            </>
+          )}
+        </dd>
         <dt>Category</dt>
-        <dd>{scheme.categories.join(', ')}</dd>
+        {/* Internal links to hub pages — helps crawling + lets users explore siblings. */}
+        <dd>
+          {scheme.categories.map((c, i) => (
+            <span key={c}>
+              {i > 0 && ', '}
+              <Link href={`/${locale}/category/${slugify(c)}/`}>{c}</Link>
+            </span>
+          ))}
+        </dd>
         <dt>Benefit</dt>
         <dd>{benefitLine(scheme.benefit)}</dd>
       </dl>

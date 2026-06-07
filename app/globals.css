@@ -253,3 +253,41 @@ a {
   font-weight: 600;
   margin-top: 0;
 }
+
+/* Hub pages + home browse-by lists */
+.hub-links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hub-links a {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  text-decoration: none;
+}
+
+.hub-links .count {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.hub-list {
+  list-style: none;
+  padding: 0;
+}
+
+.hub-list li {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 0;
+}
+
+.hub-list p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

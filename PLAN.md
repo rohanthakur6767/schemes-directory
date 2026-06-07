@@ -229,8 +229,14 @@ type SchemeTranslation = {
 > API SETU: parked — PAN verification gate blocks solo registration; revisit only with a
 > business PAN / custom domain. Pipeline is source-agnostic so it drops in later if useful.
 
-**Phase 6 — SEO polish + launch**
-- [ ] Sitemap, robots, meta/OG; per-state + per-category hub pages (big SEO surface).
+**Phase 6 — SEO polish + launch** — IN PROGRESS
+- [x] `app/sitemap.ts` + `app/robots.ts` (force-static for export). 54-URL sitemap.
+- [x] Hub pages: `/[locale]/category/[category]/` + `/[locale]/state/[state]/`
+      (`lib/hubs.ts`, 4 tests). State hubs = state-only schemes (unique content, D29).
+- [x] Internal links (scheme→hubs, home browse-by sections) + OpenGraph tags.
+- [ ] **Category normalisation (D30 finding):** LLM categories are fragmented — "loan"/
+      "loans"/"loan-subsidy" became 3 separate thin hubs; 28 categories, many with 1 scheme.
+      Need a controlled vocabulary mapped at review/import time. Hurts SEO (thin/near-dup pages).
 - [ ] Performance + mobile pass.
 - [ ] Only after substantial original content exists: apply for ads.
 
@@ -334,6 +340,16 @@ type SchemeTranslation = {
   (`npm run review`, localhost:5174) is a small `node:http` server (no framework, D10) that
   reads/writes Neon directly and is never deployed. `review_status` (pending/published/
   rejected) drives the queue, distinct from `status` (the publish/export gate).
+
+- **D29 — Hub pages for SEO.** Static, crawlable, uniquely-titled `/category/<x>/` and
+  `/state/<x>/` pages (the long-tail ranking surface) + internal links. State hubs list only
+  that state's schemes to avoid duplicate central content across every state page. Only hubs
+  with ≥1 scheme are generated (no thin/empty pages). The browse page stays the client-side
+  filter UX; hubs are its SEO counterpart.
+- **D30 — Category vocabulary is fragmented (finding 2026-06-07).** LLM-extracted categories
+  are inconsistent ("loan"/"loans"/"loan-subsidy"; "technology"/"technical-education"),
+  producing 28 mostly-thin category hubs. FIX (todo): a controlled category vocabulary the
+  parser/import maps onto, applied at review time. Mechanism works; taxonomy needs cleaning.
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
