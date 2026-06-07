@@ -256,6 +256,12 @@ type SchemeTranslation = {
       steps + an expandable FAQ section + **FAQPage JSON-LD** (Google rich result). Review tool
       gained steps/FAQs fields. Generated + re-imported for the 16 PENDING (verified via
       publish-then-revert screenshot). The 18 already-published get enriched later via re-review.
+- [x] **Required site pages (D35) for AdSense + E-E-A-T:** About (named operator, sourcing,
+      human verification), Privacy Policy (Google AdSense + third-party cookie disclosure +
+      opt-out links + India data note + checker-stays-in-browser), Disclaimer (not govt,
+      verify on official source, no fees), Contact (real email). Footer links to all four on
+      every page; added to sitemap.
+- [ ] OWNER: set real `CONTACT_EMAIL` + `SITE_OPERATOR` in `lib/site.ts` (placeholders now).
 - [ ] Performance + mobile pass (broader: home/browse/checker polish).
 - [ ] Only after substantial original content exists: apply for ads.
 
@@ -396,6 +402,12 @@ type SchemeTranslation = {
   NOTE: static sites can't be "instant" on publish — instant would require runtime SSR + an
   always-on server + DB, which D1 deliberately avoids. "Auto in ~2 min" is the right fit.
   Workflow: review a batch → publish each → click Deploy once → live.
+
+- **D35 — Required trust/legal pages built** (About, Privacy, Disclaimer, Contact) +
+  footer links sitewide (2026-06-07). AdSense rejects sites lacking these; they're also
+  E-E-A-T signals for YMYL content. Privacy explicitly covers Google AdSense third-party
+  cookies + opt-out (Google Ads Settings, aboutads.info) — AdSense checks for this. Contact
+  email + operator name are constants in `lib/site.ts` (owner must set real values).
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

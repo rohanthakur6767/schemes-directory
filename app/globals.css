@@ -87,6 +87,38 @@ a {
   margin-top: 2rem;
 }
 
+/* Content / legal pages */
+.content-page {
+  max-width: 70ch;
+}
+.content-page h1 {
+  margin-bottom: 1rem;
+}
+.content-page h2 {
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+.content-page p,
+.content-page li {
+  color: #333;
+}
+.content-page .muted-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Footer links */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+.footer-links a {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 /* Nav */
 .site-nav {
   max-width: var(--max-width);

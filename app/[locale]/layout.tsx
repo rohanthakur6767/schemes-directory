@@ -53,6 +53,12 @@ export default async function RootLayout({
         <main>{children}</main>
         {/* §2: site-wide disclaimer + attribution, required from day one. */}
         <footer>
+          <nav className="footer-links">
+            <a href={`/${locale}/about/`}>About</a>
+            <a href={`/${locale}/privacy/`}>Privacy Policy</a>
+            <a href={`/${locale}/disclaimer/`}>Disclaimer</a>
+            <a href={`/${locale}/contact/`}>Contact</a>
+          </nav>
           <p>
             {SITE_NAME} is an independent informational website. We are not
             affiliated with, or endorsed by, the Government of India or any
