@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { BenefitSchema, EligibilitySchema, type Eligibility, type Benefit } from './types.ts';
 import type { JsonSchema } from './llm.ts';
+import { CANONICAL_CATEGORIES } from './categories.ts';
 
 // Snake_case flag vocabulary we already use — fed to the model so flags stay
 // consistent across schemes (the checker matches on exact flag strings).
@@ -166,6 +167,8 @@ export const SYSTEM_PROMPT = [
   'CRITICAL — the page usually has an "Exclusions" section listing who is NOT eligible. Encode EACH exclusion as a constraint flag. Examples: income-tax payers excluded → "not_income_tax_payer"; serving/retired government employees in the family → "no_government_employee_in_family"; high pension → "no_high_pension_in_family"; constitutional-post holders / professionals (doctors, lawyers, etc.) practising → appropriate flags. Do not skip exclusions — they are eligibility rules.',
   'other_flags: snake_case, positively phrased about the applicant (negations too, e.g. "not_income_tax_payer"). Reuse this vocabulary where it fits, else coin a clear flag:',
   FLAG_VOCAB.join(', ') + '.',
+  'categories: choose 1–3 from THIS FIXED LIST only (closest fit) — do not invent new ones:',
+  CANONICAL_CATEGORIES.join(', ') + '.',
   'occupation: lowercase single words like farmer, student, artisan, street_vendor, where applicable.',
   'notes: one sentence on anything ambiguous or that a human reviewer should double-check.',
 ].join('\n');

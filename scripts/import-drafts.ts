@@ -8,6 +8,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { sql } from '../lib/db.ts';
 import { EligibilitySchema, BenefitSchema } from '../lib/types.ts';
 import { nullifyString } from '../lib/parse.ts';
+import { normalizeCategories } from '../lib/categories.ts';
 
 const db = sql(); // lib/db exports a getter; grab the client once.
 const PARSED = new URL('../data/parsed/', import.meta.url);
@@ -36,17 +37,18 @@ for (const file of files) {
   const state = nullifyString(d.state);
   const level = state !== null ? 'state' : 'central';
   const official_url = nullifyString(d.official_url) ?? `https://www.myscheme.gov.in/schemes/${id}`;
+  const categories = normalizeCategories(d.categories).canonical; // controlled vocab (D30)
   const hasProse = !!d.prose;
 
   await db`
     insert into schemes (id, slug, name, level, state, categories, benefit, eligibility,
                          documents, official_url, source, source_snapshot_date, llm_notes, last_verified)
-    values (${id}, ${d.slug}, ${d.name}, ${level}, ${state}, ${d.categories},
+    values (${id}, ${d.slug}, ${d.name}, ${level}, ${state}, ${categories},
             ${db.json(benefit)}, ${db.json(eligibility)}, ${d.documents}, ${official_url},
             ${d.source}, ${d.source_snapshot_date}, ${d.llm_notes ?? null}, null)
     on conflict (id) do update set
       name = excluded.name, level = excluded.level, state = excluded.state,
-      categories = excluded.categories, benefit = excluded.benefit,
+      categories = ${categories}, benefit = excluded.benefit,
       eligibility = excluded.eligibility, documents = excluded.documents,
       official_url = excluded.official_url, source = excluded.source,
       source_snapshot_date = excluded.source_snapshot_date, llm_notes = excluded.llm_notes,

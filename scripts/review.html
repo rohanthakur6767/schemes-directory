@@ -35,6 +35,9 @@
   textarea { resize:vertical; }
   .row { display:flex; gap:.6rem; } .row > div { flex:1; }
   .hint { font-weight:400; color:#888; font-size:.72rem; }
+  .cat-grid { display:flex; flex-wrap:wrap; gap:.3rem .8rem; padding:.4rem .1rem; }
+  .cat-item { display:inline-flex; align-items:center; gap:.3rem; font-size:.85rem; font-weight:400; margin:0; width:auto; }
+  .cat-item input { width:auto; }
   fieldset { border:1px solid var(--border); border-radius:6px; margin:.8rem 0 0; padding:.4rem .7rem .7rem; }
   legend { font-size:.78rem; font-weight:700; color:#444; padding:0 .3rem; }
   #empty { text-align:center; padding:4rem 1rem; color:#555; }
@@ -73,10 +76,10 @@
     <label>Summary <span class="hint">(≤160 chars, for cards/SEO)</span></label>
     <input id="f_summary" maxlength="200" />
 
-    <div class="row">
-      <div><label>State <span class="hint">(blank = central)</span></label><input id="f_state" /></div>
-      <div><label>Categories <span class="hint">(comma-separated)</span></label><input id="f_categories" /></div>
-    </div>
+    <label>State <span class="hint">(blank = central)</span></label>
+    <input id="f_state" />
+    <label>Categories <span class="hint">(pick from the controlled list)</span></label>
+    <div id="f_cats" class="cat-grid"></div>
 
     <fieldset>
       <legend>Benefit</legend>
@@ -126,6 +129,21 @@
 <script>
 const $ = (id) => document.getElementById(id);
 let current = null;
+let VOCAB = [];
+
+function renderCats(selected) {
+  const box = $('f_cats');
+  box.innerHTML = '';
+  for (const c of VOCAB) {
+    const wrap = document.createElement('label');
+    wrap.className = 'cat-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = c; cb.checked = selected.includes(c);
+    wrap.appendChild(cb);
+    wrap.appendChild(document.createTextNode(' ' + c));
+    box.appendChild(wrap);
+  }
+}
 
 const splitCsv = (s) => s.split(',').map(x => x.trim()).filter(Boolean);
 const splitLines = (s) => s.split('\n').map(x => x.trim()).filter(Boolean);
@@ -147,7 +165,7 @@ function render(item, counts) {
   $('f_name').value = item.name || '';
   $('f_summary').value = item.summary || '';
   $('f_state').value = item.state || '';
-  $('f_categories').value = (item.categories || []).join(', ');
+  renderCats(item.categories || []);
 
   const b = item.benefit || {};
   $('f_btype').value = b.type || 'service';
@@ -193,7 +211,8 @@ function collect() {
 
   return {
     id: current.id, name: $('f_name').value.trim(), summary: $('f_summary').value.trim(),
-    state: $('f_state').value.trim(), categories: splitCsv($('f_categories').value),
+    state: $('f_state').value.trim(),
+    categories: [...$('f_cats').querySelectorAll('input:checked')].map((x) => x.value),
     benefit, eligibility: elig, documents: splitLines($('f_docs').value),
     official_url: $('f_url').value.trim(),
     eligibility_prose: $('f_elig_prose').value.trim(), benefits_prose: $('f_ben_prose').value.trim(),
@@ -205,6 +224,7 @@ async function api(path, body) {
   const res = await fetch(path, body ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) } : {});
   const data = await res.json();
   if (!res.ok) { alert('Error: ' + (data.error || res.status)); throw new Error(data.error); }
+  if (data.categoryVocab) VOCAB = data.categoryVocab;
   return data;
 }
 

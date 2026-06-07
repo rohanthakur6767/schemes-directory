@@ -234,9 +234,10 @@ type SchemeTranslation = {
 - [x] Hub pages: `/[locale]/category/[category]/` + `/[locale]/state/[state]/`
       (`lib/hubs.ts`, 4 tests). State hubs = state-only schemes (unique content, D29).
 - [x] Internal links (scheme→hubs, home browse-by sections) + OpenGraph tags.
-- [ ] **Category normalisation (D30 finding):** LLM categories are fragmented — "loan"/
-      "loans"/"loan-subsidy" became 3 separate thin hubs; 28 categories, many with 1 scheme.
-      Need a controlled vocabulary mapped at review/import time. Hurts SEO (thin/near-dup pages).
+- [x] **Category normalisation (D30 fixed):** controlled vocab `lib/categories.ts` (16
+      canonical) + mapping, enforced in 3 places — normalizer (`npm run normalize-categories`,
+      fixed existing 16 schemes, 0 unmapped), importer, parse prompt, AND a checkbox picker in
+      the review tool. Hubs: 28 → 15. 6 unit tests.
 - [ ] Performance + mobile pass.
 - [ ] Only after substantial original content exists: apply for ads.
 
@@ -346,10 +347,14 @@ type SchemeTranslation = {
   that state's schemes to avoid duplicate central content across every state page. Only hubs
   with ≥1 scheme are generated (no thin/empty pages). The browse page stays the client-side
   filter UX; hubs are its SEO counterpart.
-- **D30 — Category vocabulary is fragmented (finding 2026-06-07).** LLM-extracted categories
-  are inconsistent ("loan"/"loans"/"loan-subsidy"; "technology"/"technical-education"),
-  producing 28 mostly-thin category hubs. FIX (todo): a controlled category vocabulary the
-  parser/import maps onto, applied at review time. Mechanism works; taxonomy needs cleaning.
+- **D30 — Controlled category vocabulary (FIXED 2026-06-07).** 16 canonical, search-term
+  categories in `lib/categories.ts` + a drifted-label→canonical MAP. Enforced in 3 layers so
+  drift can't return: (1) `normalize-categories` script fixed the existing DB; (2) `import-drafts`
+  normalises future drafts; (3) the parse prompt constrains the LLM to the list; (4) the review
+  tool shows a checkbox PICKER instead of free text. Result: 28 hubs → 15. Same lesson as D26 —
+  free-text LLM fields drift; constrain them to a vocabulary. (Note: `Housing` canonical exists
+  but isn't yet populated — the home-loan scheme's source labels didn't say "housing"; reviewer
+  can add it via the picker.)
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

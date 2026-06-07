@@ -6,6 +6,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { sql } from '../lib/db.ts';
 import { EligibilitySchema, BenefitSchema } from '../lib/types.ts';
+import { CANONICAL_CATEGORIES } from '../lib/categories.ts';
 
 const db = sql();
 const PORT = 5174;
@@ -100,7 +101,7 @@ const server = createServer(async (req, res) => {
       return;
     }
     if (req.method === 'GET' && url.pathname === '/api/next') {
-      json(res, 200, { item: await nextItem(), counts: await counts() });
+      json(res, 200, { item: await nextItem(), counts: await counts(), categoryVocab: CANONICAL_CATEGORIES });
       return;
     }
     if (req.method === 'POST' && url.pathname === '/api/save') {
@@ -110,7 +111,7 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === 'POST' && url.pathname === '/api/publish') {
       await save(await readBody(req), true);
-      json(res, 200, { ok: true, item: await nextItem(), counts: await counts() });
+      json(res, 200, { ok: true, item: await nextItem(), counts: await counts(), categoryVocab: CANONICAL_CATEGORIES });
       return;
     }
     if (req.method === 'POST' && url.pathname === '/api/reject') {

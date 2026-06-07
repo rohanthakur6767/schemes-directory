@@ -18,7 +18,8 @@
     "prose": "node --env-file-if-exists=.env scripts/generate-prose.ts",
     "import-drafts": "node --env-file-if-exists=.env scripts/import-drafts.ts",
     "review": "node --env-file-if-exists=.env scripts/review-server.ts",
-    "status": "node --env-file-if-exists=.env scripts/status.ts"
+    "status": "node --env-file-if-exists=.env scripts/status.ts",
+    "normalize-categories": "node --env-file-if-exists=.env scripts/normalize-categories.ts"
   },
   "dependencies": {
     "next": "^16.2.7",
