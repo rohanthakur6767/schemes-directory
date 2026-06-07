@@ -1,4 +1,4 @@
-import type { Benefit, Eligibility } from './types';
+import type { Benefit, Eligibility } from './types.ts';
 
 export function formatINR(n: number): string {
   // en-IN grouping: ₹2,50,000 — lakh/crore style, as users expect.

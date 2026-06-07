@@ -40,6 +40,10 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body>
+        <nav className="site-nav">
+          <a href={`/${locale}/`}>{SITE_NAME}</a>
+          <a href={`/${locale}/checker/`}>Eligibility checker</a>
+        </nav>
         <main>{children}</main>
         {/* §2: site-wide disclaimer + attribution, required from day one. */}
         <footer>

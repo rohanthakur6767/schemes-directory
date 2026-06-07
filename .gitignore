@@ -5,6 +5,9 @@ node_modules/
 .next/
 out/
 
+# generated at build time by scripts/build-index.ts (prebuild)
+/public/index/
+
 # environment — secrets never enter git
 .env
 .env.*

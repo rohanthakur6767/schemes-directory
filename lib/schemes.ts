@@ -1,10 +1,10 @@
-import { sql } from './db';
+import { sql } from './db.ts';
 import {
   ProseSchema,
   SchemeSchema,
   type SchemeWithProse,
-} from './types';
-import type { Locale } from './i18n';
+} from './types.ts';
+import type { Locale } from './i18n.ts';
 
 // ---------------------------------------------------------------------------
 // THE D5 GATE LIVES HERE: every site-facing query joins on status='published'.
