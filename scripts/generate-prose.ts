@@ -12,7 +12,17 @@ const EXTRACTED = new URL('../data/extracted/', import.meta.url);
 
 const argv = process.argv.slice(2);
 const all = (await readdir(PARSED)).filter((f) => f.endsWith('.json')).map((f) => f.replace('.json', ''));
-const slugs = argv.length ? argv : all;
+// No args → INCREMENTAL: only schemes whose parsed file has no prose yet. Pass
+// slugs explicitly to force regeneration (e.g. after a prompt change).
+let slugs = argv;
+if (!slugs.length) {
+  slugs = [];
+  for (const s of all) {
+    const d = JSON.parse(await readFile(new URL(`${s}.json`, PARSED), 'utf8'));
+    if (!d.prose) slugs.push(s);
+  }
+}
+if (!slugs.length) console.log('Nothing new to write prose for (all parsed schemes already have prose).');
 
 for (const slug of slugs) {
   const parsed = JSON.parse(await readFile(new URL(`${slug}.json`, PARSED), 'utf8'));

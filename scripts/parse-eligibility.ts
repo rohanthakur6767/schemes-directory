@@ -14,7 +14,13 @@ await mkdir(OUT, { recursive: true });
 
 const argv = process.argv.slice(2);
 const all = (await readdir(IN)).filter((f) => f.endsWith('.json')).map((f) => f.replace('.json', ''));
-const slugs = argv.length ? argv : all;
+// No args → INCREMENTAL: parse only schemes not already parsed (skip re-LLM cost).
+// Pass slugs explicitly to force re-parsing those (e.g. after a prompt change).
+const done = new Set(
+  (await readdir(OUT)).filter((f) => f.endsWith('.json')).map((f) => f.replace('.json', '')),
+);
+const slugs = argv.length ? argv : all.filter((s) => !done.has(s));
+if (!slugs.length) console.log('Nothing new to parse (all extracted schemes already parsed).');
 
 for (const slug of slugs) {
   const src = JSON.parse(await readFile(new URL(`${slug}.json`, IN), 'utf8'));

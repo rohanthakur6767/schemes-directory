@@ -441,5 +441,11 @@ type SchemeTranslation = {
   is right for catching bad data, but the build must degrade gracefully — one typo shouldn't
   take down the whole site. Prevent at write (review), tolerate at build.
 
+- **D40 — Self-serve pipeline + RUNBOOK** (2026-06-07). Added `npm run fetch -- N`
+  (downloads N new scheme PDFs, even spread, skips already-downloaded) so the owner doesn't
+  need ad-hoc PowerShell. Made `parse` + `prose` INCREMENTAL (no args → only process schemes
+  not yet done; pass slugs to force). Owner loop: `fetch → extract → parse → prose →
+  import-drafts → review → Deploy live`. Documented in `RUNBOOK.md`.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

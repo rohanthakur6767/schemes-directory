@@ -13,6 +13,7 @@
     "db:up": "docker compose up -d db",
     "db:migrate": "node --env-file-if-exists=.env scripts/migrate.ts",
     "db:seed": "node --env-file-if-exists=.env scripts/seed.ts",
+    "fetch": "node scripts/fetch-batch.ts",
     "extract": "node scripts/extract.ts",
     "parse": "node --env-file-if-exists=.env scripts/parse-eligibility.ts",
     "prose": "node --env-file-if-exists=.env scripts/generate-prose.ts",
