@@ -12,6 +12,7 @@ import {
   type FacetKey,
   type Selection,
 } from '@/lib/facets';
+import { iconFor } from '@/lib/categoryIcons';
 
 const GROUP_LABELS: Record<FacetKey, string> = {
   state: 'State',
@@ -100,7 +101,8 @@ export default function Browse({ locale }: { locale: string }) {
             </a>
             <p>{s.summary}</p>
             <p className="tags">
-              {s.state ?? 'Central'} · {s.categories.join(', ')}
+              <span aria-hidden>{iconFor(s.categories[0])}</span> {s.state ?? 'Central'}
+              {s.categories.length ? ` · ${s.categories.join(', ')}` : ''}
             </p>
           </div>
         ))}

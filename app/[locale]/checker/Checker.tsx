@@ -186,12 +186,17 @@ function ResultCard({
   match: ReturnType<typeof matchAll>[number];
   locale: string;
 }) {
-  const { scheme, reasons, toConfirm } = match;
+  const { scheme, reasons, toConfirm, verdict } = match;
   return (
     <div className="result-card">
-      <a href={`/${locale}/schemes/${scheme.slug}/`}>
-        <strong>{scheme.name}</strong>
-      </a>
+      <div className="result-head">
+        <a href={`/${locale}/schemes/${scheme.slug}/`}>
+          <strong>{scheme.name}</strong>
+        </a>
+        <span className={`verdict-pill verdict-${verdict}`}>
+          {verdict === 'eligible' ? '✓ Likely eligible' : 'May qualify'}
+        </span>
+      </div>
       <p>{scheme.summary}</p>
       {reasons.length > 0 && (
         <ul className="why">

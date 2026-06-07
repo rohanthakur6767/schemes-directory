@@ -266,7 +266,10 @@ type SchemeTranslation = {
       prominent checker CTA + browse), 3-step "How it works" cards, colour-tinted category
       card grid with icons + counts + hover. 100% CSS/emoji — NO photos/images (AdSense-safe,
       independent). Verified desktop + mobile.
-- [ ] Performance + mobile pass (remaining: browse + checker page polish to match).
+- [x] **Browse + Checker UI polish (D38):** sticky carded facets/form, elevated result
+      cards with hover, category icons in tag lines, green/amber verdict pills in the checker.
+      Consistent with home + scheme pages. Verified via preview.
+- [ ] Performance pass + remaining minor polish.
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**

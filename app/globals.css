@@ -714,9 +714,16 @@ a {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  position: sticky;
+  top: 1rem;
+}
+@media (max-width: 48rem) {
+  .checker-form { position: static; }
 }
 
 .checker-form label {
@@ -756,10 +763,63 @@ a {
 }
 
 .result-card {
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.25rem;
   margin-bottom: 1rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
+}
+
+.result-card > a {
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+.result-card > a:hover {
+  text-decoration: underline;
+}
+
+.result-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.verdict-pill {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.verdict-eligible {
+  background: #e7f6ec;
+  color: var(--success);
+  border: 1px solid #bfe6cc;
+}
+.verdict-maybe {
+  background: #fff6e0;
+  color: #8a6d00;
+  border: 1px solid #f0e2b6;
+}
+
+.checker-results h2 {
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+.checker-results h3 {
+  font-size: 1rem;
+  margin: 1.75rem 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid #eef2fb;
 }
 
 .result-card p {
@@ -806,7 +866,17 @@ a {
 .facets {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  position: sticky;
+  top: 1rem;
+}
+@media (max-width: 48rem) {
+  .facets { position: static; }
 }
 
 .facets fieldset {
