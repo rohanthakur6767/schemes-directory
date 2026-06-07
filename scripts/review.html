@@ -17,6 +17,8 @@
                   background:#fff; cursor:pointer; }
   header .publish { background:var(--ok); color:#fff; border-color:var(--ok); font-weight:600; }
   header .reject { color:#b3261e; }
+  header .deploy { border-color:#1a7f37; color:#1a7f37; font-weight:600; }
+  header .deploy:disabled { opacity:.6; cursor:default; }
   header kbd { background:#eee; border-radius:4px; padding:0 .3rem; font-size:.75rem; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1rem; align-items:start; }
   @media (max-width:60rem){ .grid{ grid-template-columns:1fr; } }
@@ -48,6 +50,7 @@
 <header>
   <strong id="title">Loading…</strong>
   <span class="counts" id="counts"></span>
+  <button class="deploy" id="btnDeploy" title="Rebuild the live site from current data">Deploy live ↗</button>
   <span class="spacer"></span>
   <span class="saved" id="savedMsg"></span>
   <button class="reject" id="btnReject" title="Ctrl+Backspace">Reject</button>
@@ -252,6 +255,20 @@ async function doReject() { if (!current) return; if (!confirm('Reject this sche
 $('btnSave').onclick = doSave;
 $('btnPublish').onclick = doPublish;
 $('btnReject').onclick = doReject;
+
+$('btnDeploy').onclick = async () => {
+  if (!confirm('Rebuild the live site now? Published changes go live in ~2 minutes.')) return;
+  const btn = $('btnDeploy');
+  btn.disabled = true;
+  btn.textContent = 'Deploying…';
+  try {
+    const d = await api('/api/deploy', {});
+    if (d.ok) flash('Deploy triggered ✓'); else alert(d.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Deploy live ↗';
+  }
+};
 
 document.addEventListener('keydown', (ev) => {
   if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); doPublish(); }

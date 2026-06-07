@@ -389,5 +389,13 @@ type SchemeTranslation = {
   Flows through the D5 gate — generated for PENDING drafts; published pages show steps/FAQs only
   once reviewed. The 18 pre-existing published schemes can be re-generated + re-reviewed to enrich.
 
+- **D34 — One-click deploy from the review tool** (2026-06-07). A "Deploy live" button →
+  `/api/deploy` → POSTs the Cloudflare Pages **Deploy Hook** (`CLOUDFLARE_DEPLOY_HOOK` in .env)
+  → rebuilds the static site from current Neon data (~2 min). Chose one-click-per-batch over
+  auto-on-every-publish (avoids 1 build per scheme + Cloudflare's ~500-builds/month free cap).
+  NOTE: static sites can't be "instant" on publish — instant would require runtime SSR + an
+  always-on server + DB, which D1 deliberately avoids. "Auto in ~2 min" is the right fit.
+  Workflow: review a batch → publish each → click Deploy once → live.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

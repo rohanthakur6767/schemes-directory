@@ -80,6 +80,23 @@ async function reject(id: string) {
            where scheme_id = ${id} and locale = 'en'`;
 }
 
+// Fire the Cloudflare Pages Deploy Hook → rebuilds the live site from current
+// Neon data (~2 min). One build per click — publish a batch, then deploy once.
+async function deploy(): Promise<{ ok: boolean; message: string }> {
+  const hook = process.env.CLOUDFLARE_DEPLOY_HOOK;
+  if (!hook) {
+    return { ok: false, message: 'CLOUDFLARE_DEPLOY_HOOK is not set in .env — add your Cloudflare Pages deploy-hook URL.' };
+  }
+  try {
+    const res = await fetch(hook, { method: 'POST' });
+    return res.ok
+      ? { ok: true, message: 'Deploy triggered — your changes will be live in ~2 minutes.' }
+      : { ok: false, message: `Deploy hook returned HTTP ${res.status}.` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach deploy hook: ${(err as Error).message}` };
+  }
+}
+
 function readBody(req: import('node:http').IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -120,6 +137,10 @@ const server = createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/reject') {
       await reject((await readBody(req)).id);
       json(res, 200, { ok: true, item: await nextItem(), counts: await counts() });
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/deploy') {
+      json(res, 200, await deploy());
       return;
     }
     json(res, 404, { error: 'not found' });
