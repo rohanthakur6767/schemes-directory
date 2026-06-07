@@ -45,19 +45,34 @@ async function nextItem() {
   return { ...row, source_text };
 }
 
+// Add https:// if a scheme/protocol is missing (reviewers often paste "www.x").
+function normalizeUrl(u: string): string {
+  const t = (u || '').trim();
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+
 // Persist editor changes to both tables. Zod-validates the structured fields.
 async function save(b: any, publish: boolean) {
   const eligibility = EligibilitySchema.parse(b.eligibility);
   const benefit = BenefitSchema.parse(b.benefit);
   const state = b.state || null;
   const level = state ? 'state' : 'central';
+  const officialUrl = normalizeUrl(b.official_url);
+  // Validate the URL before publishing — a bad URL would otherwise crash the
+  // static build (D10). Drafts may save freely; publishing is the gate.
+  if (publish) {
+    let valid = false;
+    try { valid = /^https?:\/\//.test(new URL(officialUrl).href); } catch { valid = false; }
+    if (!valid) throw new Error(`Official URL is invalid: "${b.official_url}". Use a full URL like https://example.gov.in`);
+  }
 
   await db`
     update schemes set
       name = ${b.name}, level = ${level}, state = ${state},
       categories = ${b.categories}, benefit = ${db.json(benefit)},
       eligibility = ${db.json(eligibility)}, documents = ${b.documents},
-      official_url = ${b.official_url},
+      official_url = ${officialUrl},
       last_verified = ${publish ? today() : null},
       updated_at = now()
     where id = ${b.id}`;

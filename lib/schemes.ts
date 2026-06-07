@@ -30,7 +30,18 @@ const SELECT = `
 
 export async function getPublishedSchemes(locale: Locale): Promise<SchemeWithProse[]> {
   const rows = await sql().unsafe(`${SELECT} order by s.name`, [locale]);
-  return rows.map(parseRow);
+  // Resilience (D39): a single malformed published row must NOT crash the whole
+  // static build/deploy. Skip it with a loud warning; the rest of the site ships.
+  // (The review tool validates on publish, so this is a backstop, not the norm.)
+  const out: SchemeWithProse[] = [];
+  for (const r of rows) {
+    try {
+      out.push(parseRow(r));
+    } catch (err) {
+      console.warn(`[build] SKIPPED published scheme "${r.slug}" — invalid data: ${(err as Error).message}`);
+    }
+  }
+  return out;
 }
 
 export async function getPublishedScheme(
@@ -38,7 +49,13 @@ export async function getPublishedScheme(
   slug: string,
 ): Promise<SchemeWithProse | null> {
   const rows = await sql().unsafe(`${SELECT} where s.slug = $2 limit 1`, [locale, slug]);
-  return rows.length ? parseRow(rows[0]) : null;
+  if (!rows.length) return null;
+  try {
+    return parseRow(rows[0]);
+  } catch (err) {
+    console.warn(`[build] scheme "${slug}" has invalid data: ${(err as Error).message}`);
+    return null;
+  }
 }
 
 // Zod at the boundary (D10): a malformed row fails the BUILD, never the page.

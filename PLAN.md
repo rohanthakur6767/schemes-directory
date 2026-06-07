@@ -204,10 +204,11 @@ type SchemeTranslation = {
       8 drafts imported `llm_unverified`/`pending`; derives official_url; normalises the
       "null"-string quirk (D27) + reconciles level/state for the DB CHECK. NEVER clobbers a
       published scheme (verified seeds protected). Build confirmed: 8 drafts, 0 leak (D5).
-- [~] **Scale to pilot (~100, D7):** batch 2 done (16 high-value central + state schemes:
-      PM-KUSUM/POSHAN/GKAY/DAKSH/YASASVI, scholarships, housing, farmer insurance). Pipeline
-      scaled with zero new bugs; categories auto-normalised; published protected. State now:
-      18 published + 16 pending review. Repeat batches → 100. Dataset has ~2066 schemes.
+- [~] **Scale to pilot (~100, D7):** batch 2 (16 schemes) reviewed + published → 34 live.
+      Batch 3 done: 20 NEW schemes (incl. PMMVY, Ramanujan Fellowship, National Senior-Citizen
+      Award + many state schemes across TN/Punjab/Assam/Goa/Gujarat/Haryana/MP/Kerala) — all
+      with steps+FAQs, imported as pending. State now: 34 published + 20 pending review.
+      Pipeline reliable; repeat batches → 100. Dataset has ~2066 schemes.
 - [ ] **Parallel (owner):** register on API Setu, fetch ONE record → evaluate as future feed.
 - ✅ *Ship test (10-scheme slice):* drafts in DB, excluded from site; review tool clears them.
 
@@ -430,6 +431,15 @@ type SchemeTranslation = {
   fire React's onFocus; also more robust for real users). Hero uses a `.hero-bg` layer for
   the glow so the hero itself isn't `overflow:hidden`, letting the results dropdown spill
   below it. Not typo-tolerant yet (future Pagefind/MiniSearch).
+
+- **D39 — Build resilience + URL validation** (2026-06-07, prod build broke). A published
+  scheme had `official_url` = "www.serbonline.in" (no protocol) → `z.url()` failed → the
+  WHOLE Cloudflare deploy crashed. Fixes: (1) data — normalised all protocol-less URLs in
+  Neon; (2) review tool `save()` now normalises (`https://` prefix) + validates the URL and
+  REJECTS publish if invalid; (3) `getPublishedSchemes` now SKIPS a malformed row with a
+  loud `[build] SKIPPED` warning instead of crashing the deploy. Lesson: fail-fast Zod (D10)
+  is right for catching bad data, but the build must degrade gracefully — one typo shouldn't
+  take down the whole site. Prevent at write (review), tolerate at build.
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
