@@ -217,10 +217,17 @@ type SchemeTranslation = {
       editable draft; EDITS STRUCTURED FLAGS not just prose (D26); keyboard Ctrl+Enter
       publish / Ctrl+S save / Ctrl+Backspace reject; live queue counter. Zod-validates on
       write. Verified: /api/next + /api/save persist to Neon.
-- [ ] **OWNER:** run `npm run review`, verify each of the 8 drafts against its official page
-      (add flags the model missed — e.g. exclusions; fix stale figures like svanidhi
-      ₹10k→₹15k), publish. Then rebuild → they go live.
-- ✅ *Ship test:* tool reads/writes Neon; publishing moves a scheme into the live build.
+- [x] **OWNER reviewed + published all 8 drafts** (2026-06-07, last_verified stamped). Site
+      now has 18 published schemes. FULL PIPELINE PROVEN end-to-end: PDF → extract → LLM
+      parse → LLM prose → review → publish → static pages.
+- ✅ *Ship test PASSED:* publishing moved schemes into the live build (18 in index, new
+      pages render with JSON-LD + prose + verified date). ← pending: push to Cloudflare.
+
+> NOTE: the 8 newly-reviewed schemes have last_verified stamped; the 10 hand-entered seeds
+> still show last_verified=null ("pending re-verification"). Optionally run them through the
+> review tool too, to stamp dates and confirm against official pages.
+> API SETU: parked — PAN verification gate blocks solo registration; revisit only with a
+> business PAN / custom domain. Pipeline is source-agnostic so it drops in later if useful.
 
 **Phase 6 — SEO polish + launch**
 - [ ] Sitemap, robots, meta/OG; per-state + per-category hub pages (big SEO surface).

@@ -17,7 +17,8 @@
     "parse": "node --env-file-if-exists=.env scripts/parse-eligibility.ts",
     "prose": "node --env-file-if-exists=.env scripts/generate-prose.ts",
     "import-drafts": "node --env-file-if-exists=.env scripts/import-drafts.ts",
-    "review": "node --env-file-if-exists=.env scripts/review-server.ts"
+    "review": "node --env-file-if-exists=.env scripts/review-server.ts",
+    "status": "node --env-file-if-exists=.env scripts/status.ts"
   },
   "dependencies": {
     "next": "^16.2.7",
