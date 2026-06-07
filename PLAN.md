@@ -262,7 +262,11 @@ type SchemeTranslation = {
       verify on official source, no fees), Contact (real email). Footer links to all four on
       every page; added to sitemap.
 - [x] Real `CONTACT_EMAIL` (govschemes.contact@gmail.com) + `SITE_OPERATOR` (Rohan Thakur) set.
-- [ ] Performance + mobile pass (broader: home/browse/checker polish).
+- [x] **Home page redesign (D36):** gradient hero (CSS glows, big headline, value prop,
+      prominent checker CTA + browse), 3-step "How it works" cards, colour-tinted category
+      card grid with icons + counts + hover. 100% CSS/emoji — NO photos/images (AdSense-safe,
+      independent). Verified desktop + mobile.
+- [ ] Performance + mobile pass (remaining: browse + checker page polish to match).
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**
@@ -408,6 +412,12 @@ type SchemeTranslation = {
   E-E-A-T signals for YMYL content. Privacy explicitly covers Google AdSense third-party
   cookies + opt-out (Google Ads Settings, aboutads.info) — AdSense checks for this. Contact
   email + operator name are constants in `lib/site.ts` (owner must set real values).
+
+- **D36 — Home redesign is design-led, zero photos** (2026-06-07, owner directive). Gradient
+  hero + CSS radial-glow decoration + category card grid (nth-child colour tints) + 3-step
+  "How it works", all pure CSS + emoji icons. NO photos of people/ministers/govt buildings —
+  stays clearly independent + AdSense-safe + fast (no image files). Hero is a contained band
+  (not full-bleed) to avoid overflow hacks that would break the scheme-page sticky sidebar.
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

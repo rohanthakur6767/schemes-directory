@@ -87,6 +87,197 @@ a {
   margin-top: 2rem;
 }
 
+/* ============================ Home page ============================ */
+/* Hero — contained rounded gradient band (no full-bleed, keeps sticky safe). */
+.hero {
+  margin: -1.5rem -1rem 2rem; /* hug the nav + screen edges within main's padding */
+  padding: 3.5rem 1.5rem;
+  background: linear-gradient(135deg, #1b4f9c 0%, #2a64b8 45%, #143a73 100%);
+  color: #fff;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+/* Soft decorative glows — pure CSS, no images. */
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.hero::before {
+  width: 22rem; height: 22rem;
+  background: radial-gradient(circle, #5b9bff, transparent 60%);
+  top: -8rem; right: -6rem;
+}
+.hero::after {
+  width: 18rem; height: 18rem;
+  background: radial-gradient(circle, #7ee0c8, transparent 60%);
+  bottom: -8rem; left: -5rem;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  line-height: 1.15;
+  margin: 0 0 1rem;
+}
+.hero-sub {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 auto 1.75rem;
+  max-width: 40rem;
+}
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.02rem;
+}
+.btn-primary {
+  background: #fff;
+  color: var(--accent-dark);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  background: #f3f7ff;
+}
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.hero-trust {
+  margin: 1.5rem 0 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* How it works */
+.how {
+  margin-bottom: 2.5rem;
+}
+.how h2,
+.home-section h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem;
+}
+.how-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+@media (max-width: 48rem) {
+  .how-steps {
+    grid-template-columns: 1fr;
+  }
+}
+.how-steps li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+.how-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: #eef4ff;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.how-step-no {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.how-steps h3 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.1rem;
+}
+.how-steps p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+/* Category cards */
+.home-section {
+  margin-bottom: 2.5rem;
+}
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.25rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.cat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
+}
+.cat-card-icon {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.cat-card-name {
+  font-weight: 700;
+}
+.cat-card-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+/* Soft tints cycled across the grid — pure CSS, no images. */
+.cat-card:nth-child(8n + 1) { background: #eef4ff; }
+.cat-card:nth-child(8n + 2) { background: #eafaf1; }
+.cat-card:nth-child(8n + 3) { background: #fff4e6; }
+.cat-card:nth-child(8n + 4) { background: #fdeef7; }
+.cat-card:nth-child(8n + 5) { background: #f3eefe; }
+.cat-card:nth-child(8n + 6) { background: #e9fbfa; }
+.cat-card:nth-child(8n + 7) { background: #fdf3e3; }
+.cat-card:nth-child(8n + 0) { background: #eef7ee; }
+
 /* Content / legal pages */
 .content-page {
   max-width: 70ch;
