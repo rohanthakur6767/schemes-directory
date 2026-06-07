@@ -17,6 +17,12 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Reserve the scrollbar gutter so the page never shifts and the left/right
+     grey margins stay symmetric whether or not a scrollbar is present. */
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   color: var(--text);
@@ -90,13 +96,16 @@ a {
 /* ============================ Home page ============================ */
 /* Hero — contained rounded gradient band (no full-bleed, keeps sticky safe). */
 .hero {
-  margin: -1.5rem -1rem 2rem; /* hug the nav + screen edges within main's padding */
+  /* Contained hero card — aligns with the nav content + page content (same
+     left/right edges down the page). No horizontal breakout. */
+  margin: 0 0 2rem;
   padding: 3.5rem 1.5rem;
   background: linear-gradient(135deg, #1b4f9c 0%, #2a64b8 45%, #143a73 100%);
   color: #fff;
   text-align: center;
   position: relative;
   z-index: 2; /* sit above the next section so the search dropdown can overlay it */
+  border-radius: 14px;
 }
 /* Decorative glows live in their own clipped layer, so the hero itself does NOT
    need overflow:hidden — letting the search dropdown spill below the hero. */
@@ -106,6 +115,7 @@ a {
   overflow: hidden;
   z-index: 0;
   pointer-events: none;
+  border-radius: inherit; /* clip the glows to the hero's rounded corners */
 }
 .hero-bg::before,
 .hero-bg::after {
@@ -154,7 +164,7 @@ a {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   border-color: transparent;
 }
-.nav-search {
+.search-nav {
   flex: 1;
   min-width: 8rem;
   max-width: 22rem;

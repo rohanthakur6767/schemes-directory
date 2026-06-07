@@ -447,5 +447,13 @@ type SchemeTranslation = {
   not yet done; pass slugs to force). Owner loop: `fetch → extract → parse → prose →
   import-drafts → review → Deploy live`. Documented in `RUNBOOK.md`.
 
+- **D41 — Home layout alignment fix** (2026-06-07). The hero used a negative-margin
+  breakout (`margin: … -1rem …`) so it sat 16px wider than the nav text + content (edges
+  didn't line up). Fix: hero is now a CONTAINED rounded card (no breakout) → nav content,
+  hero, and all sections share the same left/right edges (verified 72px desktop / 16px
+  mobile, 0 overflow). Also: `html { scrollbar-gutter: stable }` for symmetric margins;
+  fixed a dead CSS selector (`.nav-search` → `.search-nav`) so the nav search is sized
+  correctly. (Did NOT use `overflow-x:hidden` on body — it would break the sticky sidebars.)
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
