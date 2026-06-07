@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scheme Review Tool</title>
+<style>
+  :root { --border:#dcdcdc; --accent:#1a5fb4; --ok:#1a7f37; --warn:#8a6d00; --bg:#fafafa; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, "Segoe UI", Roboto, sans-serif; color:#1a1a1a; background:var(--bg); }
+  header { position:sticky; top:0; background:#fff; border-bottom:1px solid var(--border);
+           padding:.6rem 1rem; display:flex; align-items:center; gap:1rem; z-index:10; }
+  header .counts { font-size:.9rem; color:#555; }
+  header .counts b { color:#1a1a1a; }
+  header .spacer { flex:1; }
+  header button { font:inherit; padding:.4rem .8rem; border-radius:6px; border:1px solid var(--border);
+                  background:#fff; cursor:pointer; }
+  header .publish { background:var(--ok); color:#fff; border-color:var(--ok); font-weight:600; }
+  header .reject { color:#b3261e; }
+  header kbd { background:#eee; border-radius:4px; padding:0 .3rem; font-size:.75rem; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1rem; align-items:start; }
+  @media (max-width:60rem){ .grid{ grid-template-columns:1fr; } }
+  .panel { background:#fff; border:1px solid var(--border); border-radius:8px; padding:1rem; }
+  .panel h2 { margin:.2rem 0 .8rem; font-size:1rem; }
+  .source-link { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+                 padding:.45rem .8rem; border-radius:6px; font-weight:600; }
+  .snapshot { color:var(--warn); font-size:.85rem; margin:.5rem 0; }
+  .source-text { white-space:pre-wrap; font-size:.82rem; line-height:1.5; max-height:70vh; overflow:auto;
+                 background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:.6rem; }
+  .notes { background:#fff8e6; border:1px solid #f0e2b6; border-radius:6px; padding:.5rem .7rem;
+           font-size:.85rem; margin-bottom:.8rem; }
+  label { display:block; font-size:.78rem; font-weight:600; color:#444; margin:.6rem 0 .15rem; }
+  input, select, textarea { width:100%; font:inherit; font-size:.9rem; padding:.35rem .45rem;
+                            border:1px solid var(--border); border-radius:6px; }
+  textarea { resize:vertical; }
+  .row { display:flex; gap:.6rem; } .row > div { flex:1; }
+  .hint { font-weight:400; color:#888; font-size:.72rem; }
+  fieldset { border:1px solid var(--border); border-radius:6px; margin:.8rem 0 0; padding:.4rem .7rem .7rem; }
+  legend { font-size:.78rem; font-weight:700; color:#444; padding:0 .3rem; }
+  #empty { text-align:center; padding:4rem 1rem; color:#555; }
+  .saved { color:var(--ok); font-size:.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <strong id="title">Loading…</strong>
+  <span class="counts" id="counts"></span>
+  <span class="spacer"></span>
+  <span class="saved" id="savedMsg"></span>
+  <button class="reject" id="btnReject" title="Ctrl+Backspace">Reject</button>
+  <button id="btnSave" title="Ctrl+S">Save</button>
+  <button class="publish" id="btnPublish" title="Ctrl+Enter">Publish ✓</button>
+</header>
+
+<div id="empty" style="display:none">🎉 Review queue is clear. Nothing pending.</div>
+
+<div class="grid" id="grid" style="display:none">
+  <!-- LEFT: official source for fact-checking -->
+  <section class="panel">
+    <h2>Official source</h2>
+    <a class="source-link" id="srcLink" target="_blank" rel="noopener">Open official page ↗</a>
+    <p class="snapshot" id="snapshot"></p>
+    <div class="source-text" id="srcText"></div>
+  </section>
+
+  <!-- RIGHT: editable draft -->
+  <section class="panel">
+    <h2>Draft (editable) — verify against the source</h2>
+    <div class="notes" id="notes"></div>
+
+    <label>Scheme name</label>
+    <input id="f_name" />
+    <label>Summary <span class="hint">(≤160 chars, for cards/SEO)</span></label>
+    <input id="f_summary" maxlength="200" />
+
+    <div class="row">
+      <div><label>State <span class="hint">(blank = central)</span></label><input id="f_state" /></div>
+      <div><label>Categories <span class="hint">(comma-separated)</span></label><input id="f_categories" /></div>
+    </div>
+
+    <fieldset>
+      <legend>Benefit</legend>
+      <div class="row">
+        <div><label>Type</label>
+          <select id="f_btype">
+            <option>cash</option><option>pension</option><option>insurance</option><option>loan</option>
+            <option>subsidy</option><option>savings</option><option>scholarship</option><option>service</option>
+          </select></div>
+        <div><label>Amount ₹ <span class="hint">(blank = n/a)</span></label><input id="f_bamount" type="number" /></div>
+        <div><label>Frequency</label>
+          <select id="f_bfreq"><option value="">—</option><option value="one_time">one_time</option>
+            <option value="monthly">monthly</option><option value="yearly">yearly</option></select></div>
+      </div>
+      <label>Note <span class="hint">(short, original wording)</span></label><input id="f_bnote" />
+    </fieldset>
+
+    <fieldset>
+      <legend>Eligibility (powers the checker — fix carefully)</legend>
+      <div class="row">
+        <div><label>Age min</label><input id="f_agemin" type="number" /></div>
+        <div><label>Age max</label><input id="f_agemax" type="number" /></div>
+        <div><label>Income max ₹/yr</label><input id="f_income" type="number" /></div>
+        <div><label>Gender</label>
+          <select id="f_gender"><option value="any">any</option><option value="female">female</option>
+            <option value="male">male</option></select></div>
+      </div>
+      <label>Occupation <span class="hint">(comma)</span></label><input id="f_occupation" />
+      <label>Caste/category <span class="hint">(comma: GEN,OBC,SC,ST)</span></label><input id="f_caste" />
+      <label>Residence states <span class="hint">(comma)</span></label><input id="f_states" />
+      <label>Other flags <span class="hint">(comma — add exclusions the model missed!)</span></label><input id="f_flags" />
+    </fieldset>
+
+    <label>Documents <span class="hint">(one per line)</span></label>
+    <textarea id="f_docs" rows="3"></textarea>
+    <label>Official URL</label><input id="f_url" />
+
+    <fieldset>
+      <legend>Prose (original — read for accuracy & plagiarism)</legend>
+      <label>Eligibility prose</label><textarea id="f_elig_prose" rows="3"></textarea>
+      <label>Benefits prose</label><textarea id="f_ben_prose" rows="2"></textarea>
+      <label>How to apply</label><textarea id="f_apply" rows="2"></textarea>
+    </fieldset>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let current = null;
+
+const splitCsv = (s) => s.split(',').map(x => x.trim()).filter(Boolean);
+const splitLines = (s) => s.split('\n').map(x => x.trim()).filter(Boolean);
+const numOrUndef = (id) => $(id).value === '' ? undefined : Number($(id).value);
+
+function render(item, counts) {
+  $('counts').innerHTML = `<b>${counts.pending}</b> pending · ${counts.published} published · ${counts.rejected} rejected`;
+  if (!item) { $('grid').style.display='none'; $('empty').style.display='block'; $('title').textContent='Done'; current=null; return; }
+  current = item;
+  $('grid').style.display='grid'; $('empty').style.display='none';
+  $('title').textContent = item.slug;
+
+  $('srcLink').href = item.official_url || '#';
+  $('snapshot').textContent = item.source_snapshot_date
+    ? `⚠ Source snapshot ${item.source_snapshot_date} — verify figures are still current on the live page.` : '';
+  $('srcText').textContent = item.source_text || '(no archived text available — use the link above)';
+  $('notes').textContent = item.llm_notes ? `Model note: ${item.llm_notes}` : 'No model notes.';
+
+  $('f_name').value = item.name || '';
+  $('f_summary').value = item.summary || '';
+  $('f_state').value = item.state || '';
+  $('f_categories').value = (item.categories || []).join(', ');
+
+  const b = item.benefit || {};
+  $('f_btype').value = b.type || 'service';
+  $('f_bamount').value = b.amount ?? '';
+  $('f_bfreq').value = b.frequency || '';
+  $('f_bnote').value = b.note || '';
+
+  const e = item.eligibility || {};
+  $('f_agemin').value = e.age_min ?? '';
+  $('f_agemax').value = e.age_max ?? '';
+  $('f_income').value = e.income_max ?? '';
+  $('f_gender').value = e.gender || 'any';
+  $('f_occupation').value = (e.occupation || []).join(', ');
+  $('f_caste').value = (e.caste || []).join(', ');
+  $('f_states').value = (e.residence_state || []).join(', ');
+  $('f_flags').value = (e.other_flags || []).join(', ');
+
+  $('f_docs').value = (item.documents || []).join('\n');
+  $('f_url').value = item.official_url || '';
+  $('f_elig_prose').value = item.eligibility_prose || '';
+  $('f_ben_prose').value = item.benefits_prose || '';
+  $('f_apply').value = item.how_to_apply || '';
+  window.scrollTo(0, 0);
+}
+
+function collect() {
+  const elig = {};
+  if (numOrUndef('f_agemin') !== undefined) elig.age_min = numOrUndef('f_agemin');
+  if (numOrUndef('f_agemax') !== undefined) elig.age_max = numOrUndef('f_agemax');
+  if (numOrUndef('f_income') !== undefined) elig.income_max = numOrUndef('f_income');
+  if ($('f_gender').value !== 'any') elig.gender = $('f_gender').value;
+  if (splitCsv($('f_occupation').value).length) elig.occupation = splitCsv($('f_occupation').value);
+  if (splitCsv($('f_caste').value).length) elig.caste = splitCsv($('f_caste').value);
+  if (splitCsv($('f_states').value).length) elig.residence_state = splitCsv($('f_states').value);
+  if (splitCsv($('f_flags').value).length) elig.other_flags = splitCsv($('f_flags').value);
+
+  const benefit = {
+    type: $('f_btype').value,
+    amount: $('f_bamount').value === '' ? null : Number($('f_bamount').value),
+    frequency: $('f_bfreq').value || null,
+  };
+  if ($('f_bnote').value.trim()) benefit.note = $('f_bnote').value.trim();
+
+  return {
+    id: current.id, name: $('f_name').value.trim(), summary: $('f_summary').value.trim(),
+    state: $('f_state').value.trim(), categories: splitCsv($('f_categories').value),
+    benefit, eligibility: elig, documents: splitLines($('f_docs').value),
+    official_url: $('f_url').value.trim(),
+    eligibility_prose: $('f_elig_prose').value.trim(), benefits_prose: $('f_ben_prose').value.trim(),
+    how_to_apply: $('f_apply').value.trim(),
+  };
+}
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) } : {});
+  const data = await res.json();
+  if (!res.ok) { alert('Error: ' + (data.error || res.status)); throw new Error(data.error); }
+  return data;
+}
+
+function flash(msg) { $('savedMsg').textContent = msg; setTimeout(() => $('savedMsg').textContent = '', 1500); }
+
+async function load() { const d = await api('/api/next'); render(d.item, d.counts); }
+async function doSave() { if (!current) return; const d = await api('/api/save', collect()); render(current, d.counts); flash('Saved ✓'); }
+async function doPublish() { if (!current) return; const d = await api('/api/publish', collect()); render(d.item, d.counts); flash('Published ✓'); }
+async function doReject() { if (!current) return; if (!confirm('Reject this scheme?')) return; const d = await api('/api/reject', { id: current.id }); render(d.item, d.counts); }
+
+$('btnSave').onclick = doSave;
+$('btnPublish').onclick = doPublish;
+$('btnReject').onclick = doReject;
+
+document.addEventListener('keydown', (ev) => {
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); doPublish(); }
+  else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's') { ev.preventDefault(); doSave(); }
+  else if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Backspace') { ev.preventDefault(); doReject(); }
+});
+
+load();
+</script>
+</body>
+</html>

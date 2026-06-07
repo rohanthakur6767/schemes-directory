@@ -42,3 +42,20 @@ create table if not exists scheme_translations (
 
 -- No indexes yet, deliberately: ~1000 rows queried only at build time. We add an
 -- index when a real query is measurably slow, not because jsonb columns exist.
+
+-- --- Schema evolution (Phase 4c) -----------------------------------------
+-- First real change since v1. schema.sql stays idempotent (applied whole), so
+-- evolutions are additive ALTER ... IF NOT EXISTS until churn justifies numbered
+-- migrations (D10).
+alter table schemes add column if not exists source_snapshot_date date;  -- dated source page
+alter table schemes add column if not exists llm_notes text;             -- model's reviewer hint
+-- review_status on the translation drives the Phase 5 queue. 'pending' = a draft
+-- awaiting human review; published is the live gate (D5). Separate from `status`
+-- so we can tell "LLM wrote it" (status) from "human acted on it" (review_status).
+alter table scheme_translations add column if not exists review_status text
+  not null default 'pending' check (review_status in ('pending', 'published', 'rejected'));
+-- The ALTER above defaulted EXISTING rows (incl. already-published seeds) to
+-- 'pending'. Reconcile: anything already published is, by definition, reviewed.
+-- Idempotent, so it self-heals on every migrate.
+update scheme_translations set review_status = 'published'
+  where status = 'published' and review_status <> 'published';

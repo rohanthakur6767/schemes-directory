@@ -12,13 +12,19 @@
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose up -d db",
     "db:migrate": "node --env-file-if-exists=.env scripts/migrate.ts",
-    "db:seed": "node --env-file-if-exists=.env scripts/seed.ts"
+    "db:seed": "node --env-file-if-exists=.env scripts/seed.ts",
+    "extract": "node scripts/extract.ts",
+    "parse": "node --env-file-if-exists=.env scripts/parse-eligibility.ts",
+    "prose": "node --env-file-if-exists=.env scripts/generate-prose.ts",
+    "import-drafts": "node --env-file-if-exists=.env scripts/import-drafts.ts",
+    "review": "node --env-file-if-exists=.env scripts/review-server.ts"
   },
   "dependencies": {
     "next": "^16.2.7",
     "postgres": "^3.4.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "unpdf": "^1.6.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {

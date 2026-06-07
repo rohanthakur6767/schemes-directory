@@ -186,22 +186,41 @@ type SchemeTranslation = {
 - [x] Selection synced to URL via `URLSearchParams` + `replaceState` (shareable).
 - ✅ *Ship test:* unit tests pass; build verified (browse + detail coexist). Pending: live.
 
-**Phase 4 — Data pipeline (the risky phase — go slow)**
-- [ ] **First:** register on API Setu, fetch **ONE** record, show raw JSON before mapping.
-- [ ] Mapper: source record → `Scheme` (structured fields) + Zod.
-- [ ] Eligibility-prose → structured `eligibility` parser (script + LLM pass, human review).
-- [ ] Bootstrap structured fields from the public dataset (attributed); flag `unverified`.
-- [ ] Bulk-import structured fields; pages w/o published prose show facts + "verifying" note.
-- ✅ *Ship test:* pilot (~100 schemes, D7) imported; search + checker work across it.
+**Phase 4 — Data pipeline (the risky phase — go slow)** — IN PROGRESS
+- [x] **Recon (D24):** no official API returns structured eligibility (API Setu myScheme =
+      aggregate counts; rich data is behind the forbidden internal API). Bootstrap dataset =
+      723 archived myScheme **public-page PDFs** (prose, dated ~Mar 2024). GODL-India permits
+      commercial reuse w/ attribution. ⇒ structured eligibility is OUR work (the moat).
+- [x] **4a — deterministic extract + clean** (`lib/extract.ts` + `scripts/extract.ts`,
+      `npm run extract`, 8 tests). PDF→text (unpdf), cp1252 mojibake fix (D22), chrome strip
+      (D23), snapshot-date capture. Output: `data/extracted/<slug>.json` (LLM input). Verified
+      on pm-kisan + pm-svanidhi.
+- [x] **4b — LLM structured parser** (`lib/llm.ts` + `lib/parse.ts` + `scripts/parse-eligibility.ts`,
+      `npm run parse`, 4 tests). fetch + Structured Outputs (no SDK); full object → sparse
+      (D11) → Zod. Model = one constant `STRUCTURED_MODEL` (`gpt-4o-mini`). FINDING (D26):
+      cheap model nails easy fields but UNDER-EXTRACTS exclusion-based flags (missed
+      `not_income_tax_payer` on pm-kisan twice) → drafts, fixed at review. Output `unverified`.
+- [x] **4c — import drafts → DB** (`scripts/import-drafts.ts`, `npm run import-drafts`).
+      8 drafts imported `llm_unverified`/`pending`; derives official_url; normalises the
+      "null"-string quirk (D27) + reconciles level/state for the DB CHECK. NEVER clobbers a
+      published scheme (verified seeds protected). Build confirmed: 8 drafts, 0 leak (D5).
+- [ ] **Scale to pilot (~100, D7):** repeat download→extract→parse→prose→import in batches.
+- [ ] **Parallel (owner):** register on API Setu, fetch ONE record → evaluate as future feed.
+- ✅ *Ship test (10-scheme slice):* drafts in DB, excluded from site; review tool clears them.
 
-**Phase 5 — LLM prose pass + review workflow**
-- [ ] Prose generator: cheap OpenAI model, model name a SINGLE config constant; output
-      saved as `llm_unverified` — never exported (D5).
-- [ ] **Review tool as first-class UX (D6, owner directive):** side-by-side LLM draft vs
-      official source link, keyboard-driven approve/edit/reject, running queue counter.
-      Owner review speed is the bottleneck — ergonomics over code elegance.
-- [ ] Approve → `published` + `last_verified`. Clear the ~100-scheme pilot queue.
-- ✅ *Ship test:* ~100 reviewed schemes live with original prose.
+**Phase 5 — LLM prose pass + review workflow** — TOOL BUILT
+- [x] **5a — Prose generator** (`lib/prose.ts` + `scripts/generate-prose.ts`, `npm run prose`).
+      `PROSE_MODEL` constant; prompt forbids copying (original prose, §2); output a draft
+      (`llm_unverified`), never exported (D5). Ran for all 10.
+- [x] **5b — Review tool, first-class UX (D6):** LOCAL-ONLY Node server (`npm run review`
+      → localhost:5174), never deployed (site is static, D1). Side-by-side official source +
+      editable draft; EDITS STRUCTURED FLAGS not just prose (D26); keyboard Ctrl+Enter
+      publish / Ctrl+S save / Ctrl+Backspace reject; live queue counter. Zod-validates on
+      write. Verified: /api/next + /api/save persist to Neon.
+- [ ] **OWNER:** run `npm run review`, verify each of the 8 drafts against its official page
+      (add flags the model missed — e.g. exclusions; fix stale figures like svanidhi
+      ₹10k→₹15k), publish. Then rebuild → they go live.
+- ✅ *Ship test:* tool reads/writes Neon; publishing moves a scheme into the live build.
 
 **Phase 6 — SEO polish + launch**
 - [ ] Sitemap, robots, meta/OG; per-state + per-category hub pages (big SEO surface).
@@ -209,7 +228,10 @@ type SchemeTranslation = {
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**
-- [ ] Keyword search via Pagefind/MiniSearch, client-side (D2).
+- [ ] Keyword search via Pagefind/MiniSearch, client-side (D2). NOTE: owner expected a
+      free-text box on the browse page (2026-06-07) and chose to keep facets-only for now —
+      so this is user-validated as wanted; prioritise once the catalogue fills out. A simple
+      substring box (name+summary) is the cheap interim if facets feel insufficient sooner.
 - [ ] Hindi: `/hi/` locale — translation rows + locale entry + rebuild (D4).
 - [ ] Scale pilot → full catalogue; review-queue burndown.
 
@@ -276,5 +298,35 @@ type SchemeTranslation = {
   (`deriveBeneficiaries`), stored in the index for the browse facet. Heuristic on 10 seeds
   (cf. D11); revisit with real data in Phase 4. Matcher ignores the field (kept decoupled).
 
-> ⚠️ 2026-06-07: PLAN.md was found reverted to its original; rebuilt from the live
+- **D22 — Encoding: source text is UTF-8 mis-decoded as Windows-1252** (₹ → `â‚¹`).
+  `fixMojibake` re-encodes via a cp1252 table then decodes UTF-8; gated on a mojibake
+  signature so clean text is never corrupted. (NOTE: PowerShell console misrenders correct
+  UTF-8 — verify file contents with Node, not `Get-Content`.)
+- **D23 — Strip myScheme UI chrome before the LLM** (sign-in modals, nav, footer) via a
+  fixed regex list. Heuristic, source-specific; revisit if the myScheme template changes.
+- **D24 — Sourcing reality (recon 2026-06-07):** no turnkey official structured feed.
+  Pipeline = acquire skeleton (archived public-page text) → deterministic clean (4a) → LLM
+  structured parse (4b) → human verify + import (4c). Every record `unverified` until the
+  owner checks it against the live official page (§2). Hybrid: bootstrap now, API Setu eval
+  in parallel.
+- **D25 — Source PDFs/extracted/parsed text are gitignored** (`data/raw/`,
+  `data/extracted/`, `data/parsed/`): bulky, re-downloadable; the DB is the source of truth.
+- **D26 — LLM extraction is a DRAFT, not truth** (owner decision 2026-06-07). Cheap model
+  (`gpt-4o-mini`, one swappable constant) reliably extracts easy fields but UNDER-extracts
+  nuanced exclusion rules into `other_flags` (verified: missed `not_income_tax_payer` on
+  pm-kisan even with explicit prompting). Chosen path: keep cheap model (~₹0), correct at
+  review. ⇒ the review tool MUST support editing structured flags, not just prose. Validate
+  drafts against hand-entered ground truth where it exists.
+
+- **D27 — Normalise LLM "null"-string + reconcile level/state at import.** The model
+  sometimes returns the literal string "null"/"none"/"" for a field; `nullifyString` coerces
+  these to real null. To satisfy the DB CHECK `(level='state')=(state not null)`, the import
+  derives `level` from `state` presence. Both belt-and-suspenders for drafts (fixed in review).
+- **D28 — Review tool is a LOCAL-ONLY Node server, separate from the static site.** The
+  public site has no runtime (D1) so it can't write to the DB; the review tool
+  (`npm run review`, localhost:5174) is a small `node:http` server (no framework, D10) that
+  reads/writes Neon directly and is never deployed. `review_status` (pending/published/
+  rejected) drives the queue, distinct from `status` (the publish/export gate).
+
+> ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

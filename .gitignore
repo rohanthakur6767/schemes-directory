@@ -8,6 +8,12 @@ out/
 # generated at build time by scripts/build-index.ts (prebuild)
 /public/index/
 
+# Phase 4 pipeline scratch: downloaded source PDFs + extracted/parsed text.
+# Bulky and re-downloadable; the DB is the source of truth, not these.
+/data/raw/
+/data/extracted/
+/data/parsed/
+
 # environment — secrets never enter git
 .env
 .env.*
