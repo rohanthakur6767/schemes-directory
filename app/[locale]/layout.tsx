@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import SearchBox from '@/components/SearchBox';
 import '../globals.css';
 
 // Static export (D1): every locale is pre-rendered at build time; any other
@@ -46,9 +47,12 @@ export default async function RootLayout({
     <html lang={locale}>
       <body>
         <nav className="site-nav">
-          <a href={`/${locale}/`}>{SITE_NAME}</a>
-          <a href={`/${locale}/schemes/`}>Browse schemes</a>
-          <a href={`/${locale}/checker/`}>Eligibility checker</a>
+          <a className="brand" href={`/${locale}/`}>{SITE_NAME}</a>
+          <a href={`/${locale}/schemes/`}>Browse</a>
+          <a href={`/${locale}/checker/`}>Checker</a>
+          <div className="nav-search">
+            <SearchBox locale={locale} variant="nav" />
+          </div>
         </nav>
         <main>{children}</main>
         {/* §2: site-wide disclaimer + attribution, required from day one. */}

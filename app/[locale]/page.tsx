@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/i18n';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
 import { iconFor } from '@/lib/categoryIcons';
+import SearchBox from '@/components/SearchBox';
 
 const STEPS = [
   { icon: '🔎', title: 'Find your scheme', text: 'Browse by category, state, or who it’s for — across central and state government.' },
@@ -23,6 +24,7 @@ export default async function HomePage({
   return (
     <>
       <section className="hero">
+        <div className="hero-bg" aria-hidden />
         <div className="hero-inner">
           <h1>Find the government schemes you actually qualify for</h1>
           <p className="hero-sub">
@@ -30,6 +32,9 @@ export default async function HomePage({
             schemes in India — benefits, eligibility and how to apply, each verified against
             official sources.
           </p>
+          <div className="hero-search">
+            <SearchBox locale={locale} variant="hero" />
+          </div>
           <div className="hero-cta">
             <Link className="btn btn-primary" href={`/${locale}/checker/`}>
               Check what you qualify for →

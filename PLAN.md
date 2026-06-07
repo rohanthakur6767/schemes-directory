@@ -270,10 +270,11 @@ type SchemeTranslation = {
 - [ ] Only after substantial original content exists: apply for ads.
 
 **Phase 7 — Later (post-launch)**
-- [ ] Keyword search via Pagefind/MiniSearch, client-side (D2). NOTE: owner expected a
-      free-text box on the browse page (2026-06-07) and chose to keep facets-only for now —
-      so this is user-validated as wanted; prioritise once the catalogue fills out. A simple
-      substring box (name+summary) is the cheap interim if facets feel insufficient sooner.
+- [x] **Client-side keyword search (D37):** instant as-you-type search over the static JSON
+      index — `searchSchemes()` (pure, 7 tests) + reusable `SearchBox` component in the hero
+      (prominent) AND the nav (persistent, all pages). Matches name + summary + categories +
+      state; ranked; keyboard nav; index lazy-loaded on first interaction. No server (D2).
+- [ ] LATER: upgrade to typo-tolerant search (Pagefind/MiniSearch) once the catalogue is large.
 - [ ] Hindi: `/hi/` locale — translation rows + locale entry + rebuild (D4).
 - [ ] Scale pilot → full catalogue; review-queue burndown.
 
@@ -418,6 +419,14 @@ type SchemeTranslation = {
   "How it works", all pure CSS + emoji icons. NO photos of people/ministers/govt buildings —
   stays clearly independent + AdSense-safe + fast (no image files). Hero is a contained band
   (not full-bleed) to avoid overflow hacks that would break the scheme-page sticky sidebar.
+
+- **D37 — Client-side keyword search** (2026-06-07). Pure `searchSchemes()` (name/summary/
+  category/state, AND-of-terms, ranked) + `SearchBox` client component used in hero + nav.
+  Reads the existing static index (D2) — no server. Index lazy-loads on first interaction
+  (focus OR typing — loading on `onChange` too, since a programmatic focus didn't reliably
+  fire React's onFocus; also more robust for real users). Hero uses a `.hero-bg` layer for
+  the glow so the hero itself isn't `overflow:hidden`, letting the results dropdown spill
+  below it. Not typo-tolerant yet (future Pagefind/MiniSearch).
 
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

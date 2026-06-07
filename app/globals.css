@@ -96,24 +96,31 @@ a {
   color: #fff;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  z-index: 2; /* sit above the next section so the search dropdown can overlay it */
 }
-/* Soft decorative glows — pure CSS, no images. */
-.hero::before,
-.hero::after {
+/* Decorative glows live in their own clipped layer, so the hero itself does NOT
+   need overflow:hidden — letting the search dropdown spill below the hero. */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.hero-bg::before,
+.hero-bg::after {
   content: '';
   position: absolute;
   border-radius: 50%;
   filter: blur(8px);
   opacity: 0.35;
-  pointer-events: none;
 }
-.hero::before {
+.hero-bg::before {
   width: 22rem; height: 22rem;
   background: radial-gradient(circle, #5b9bff, transparent 60%);
   top: -8rem; right: -6rem;
 }
-.hero::after {
+.hero-bg::after {
   width: 18rem; height: 18rem;
   background: radial-gradient(circle, #7ee0c8, transparent 60%);
   bottom: -8rem; left: -5rem;
@@ -123,6 +130,81 @@ a {
   z-index: 1;
   max-width: 46rem;
   margin: 0 auto;
+}
+
+/* ===== Search (hero + nav variants) ===== */
+.search {
+  position: relative;
+}
+.search-input {
+  width: 100%;
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+}
+.search-hero {
+  max-width: 34rem;
+  margin: 0 auto 1.5rem;
+}
+.search-hero .search-input {
+  padding: 0.85rem 1.1rem;
+  font-size: 1.05rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-color: transparent;
+}
+.nav-search {
+  flex: 1;
+  min-width: 8rem;
+  max-width: 22rem;
+}
+.search-nav .search-input {
+  padding: 0.45rem 0.7rem;
+  font-size: 0.92rem;
+  background: var(--bg);
+}
+.search-results {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.16);
+  max-height: 24rem;
+  overflow-y: auto;
+  z-index: 50;
+  text-align: left;
+}
+.search-hit {
+  display: block;
+  padding: 0.6rem 0.9rem;
+  text-decoration: none;
+  color: var(--text);
+  border-bottom: 1px solid #f1f3f5;
+}
+.search-hit:last-child {
+  border-bottom: none;
+}
+.search-hit strong {
+  display: block;
+  font-size: 0.95rem;
+}
+.search-hit span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.search-hit.active,
+.search-hit:hover {
+  background: #eef4ff;
+}
+.search-msg {
+  margin: 0;
+  padding: 0.8rem 0.9rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 .hero h1 {
   font-size: clamp(1.8rem, 4vw, 2.7rem);
@@ -314,10 +396,14 @@ a {
 .site-nav {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 30; /* nav search dropdown overlays the page (incl. the hero) */
 }
 
 .site-nav {
