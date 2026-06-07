@@ -261,7 +261,7 @@ type SchemeTranslation = {
       opt-out links + India data note + checker-stays-in-browser), Disclaimer (not govt,
       verify on official source, no fees), Contact (real email). Footer links to all four on
       every page; added to sitemap.
-- [ ] OWNER: set real `CONTACT_EMAIL` + `SITE_OPERATOR` in `lib/site.ts` (placeholders now).
+- [x] Real `CONTACT_EMAIL` (govschemes.contact@gmail.com) + `SITE_OPERATOR` (Rohan Thakur) set.
 - [ ] Performance + mobile pass (broader: home/browse/checker polish).
 - [ ] Only after substantial original content exists: apply for ads.
 
