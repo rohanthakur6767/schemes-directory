@@ -3,6 +3,7 @@
   /* ONE source of truth for page width (D43). ~1280px, SaaS-standard. */
   --container: 80rem;
   --container-pad: clamp(1rem, 2.5vw, 1.5rem);
+  --header-h: 3.5rem; /* sticky header height — sticky sidebars offset below it */
   --text: #1f2937;
   --muted: #5b6675;
   --accent: #1b4f9c;
@@ -582,7 +583,9 @@ body:has(.hero) .search-nav {
 /* Sticky sidebar */
 .scheme-aside {
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-h) + 1rem);
+  max-height: calc(100vh - var(--header-h) - 2rem);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -590,6 +593,8 @@ body:has(.hero) .search-nav {
 @media (max-width: 56rem) {
   .scheme-aside {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 .facts-card {
@@ -750,11 +755,14 @@ body:has(.hero) .search-nav {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1.25rem;
+  /* Same as the facets sidebar: sticky below the header with its own scroll. */
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-h) + 1rem);
+  max-height: calc(100vh - var(--header-h) - 2rem);
+  overflow-y: auto;
 }
 @media (max-width: 48rem) {
-  .checker-form { position: static; }
+  .checker-form { position: static; max-height: none; overflow: visible; }
 }
 
 .checker-form label {
@@ -903,11 +911,17 @@ body:has(.hero) .search-nav {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1.25rem;
+  /* Sticky below the header, with its OWN vertical scroll: wheel over the panel
+     scrolls the filters; at the top/bottom edge the page keeps scrolling
+     (default scroll-chaining). */
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-h) + 1rem);
+  max-height: calc(100vh - var(--header-h) - 2rem);
+  overflow-y: auto;
 }
 @media (max-width: 48rem) {
-  .facets { position: static; }
+  /* On mobile the sidebar stacks above results — no independent scroll. */
+  .facets { position: static; max-height: none; overflow: visible; }
 }
 
 .facets fieldset {

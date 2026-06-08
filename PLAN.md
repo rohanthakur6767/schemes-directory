@@ -471,5 +471,14 @@ type SchemeTranslation = {
   too narrow on modern screens — and the nav was a centered 72rem bar rather than a full-width
   header, so it read as misaligned. To change page width, edit ONE var: `--container`.
 
+- **D44 — Sticky sidebars get their own scroll** (2026-06-07). The filter sidebar (`.facets`),
+  checker form (`.checker-form`) and scheme aside (`.scheme-aside`) were `position: sticky` but
+  unbounded → when taller than the viewport (e.g. all the category/beneficiary filters), the
+  bottom was unreachable, AND they sat under the new sticky header (D43). Fix: `top: calc(var(
+  --header-h) + 1rem)` (clears the header) + `max-height: calc(100vh - var(--header-h) - 2rem)`
+  + `overflow-y: auto`. Wheel over the panel scrolls its options; at the top/bottom edge the
+  page keeps scrolling (default scroll-chaining — deliberately NOT `overscroll-behavior:
+  contain`). Mobile keeps `position: static` (panels stack, no inner scroll). Added `--header-h`.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
