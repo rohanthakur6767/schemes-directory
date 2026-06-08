@@ -16,11 +16,10 @@ export default async function CheckerPage({
   const { locale } = await params;
   return (
     <>
-      <h1>Eligibility checker</h1>
-      <p>
-        Answer what you can — every field is optional. Leaving an answer blank
-        simply widens the results rather than ruling schemes out.
-      </p>
+      <header className="checker-head">
+        <h1>Which schemes do you qualify for?</h1>
+        <p>Answer a few quick questions — every one is optional, and your answers never leave your browser.</p>
+      </header>
       <Checker locale={locale} />
     </>
   );

@@ -1151,3 +1151,178 @@ body:has(.hero) .search-nav {
   padding-top: 0.5rem;
   margin-top: 0.25rem;
 }
+
+/* ===== Eligibility wizard ===== */
+.checker-head {
+  max-width: 44rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.checker-head h1 {
+  margin: 0 0 0.5rem;
+}
+.checker-head p {
+  color: var(--muted);
+  margin: 0;
+}
+.wizard,
+.results {
+  max-width: 44rem;
+  margin: 1.5rem auto 0;
+}
+.wizard-top {
+  margin-bottom: 1.75rem;
+}
+.wizard-progress {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.wizard-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+.wizard-meta {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.wizard-q {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: 0 0 1.25rem;
+}
+.wizard-help {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
+/* Choice cards */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+.choice-grid-tight {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+.choice-card {
+  font: inherit;
+  text-align: left;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+}
+.choice-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.choice-card.active {
+  border-color: var(--accent);
+  background: #eef4ff;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.choice-card.muted {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Number field */
+.number-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  max-width: 22rem;
+}
+.number-field:focus-within {
+  border-color: var(--accent);
+}
+.number-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text);
+  width: 100%;
+}
+.number-field .affix {
+  color: var(--muted);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Wizard nav buttons */
+.wizard-nav,
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+.wz-primary,
+.wz-ghost {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.wz-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1.5px solid var(--accent);
+}
+.wz-primary:hover {
+  background: var(--accent-dark);
+}
+.wz-ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--border);
+}
+.wz-ghost:hover {
+  border-color: var(--accent);
+}
+.wz-ghost:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Results */
+.results-count {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+.results h2 {
+  font-size: 1.1rem;
+  margin: 1.75rem 0 0.75rem;
+  text-align: left;
+}
+.wizard-privacy {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wizard-progress > span,
+  .choice-card {
+    transition: none;
+  }
+}

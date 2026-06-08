@@ -10,15 +10,26 @@ import {
 } from '@/lib/matcher';
 import { humanizeFlag } from '@/lib/format';
 
-const OTHER_STATE = '__other__';
+// Guided, one-question-per-step eligibility wizard. Reuses the pure, tested
+// matcher (lib/matcher.ts) — this file is ONLY the flow/UX. Everything runs in
+// the browser; answers never leave the device (D1).
+const STEPS = ['age', 'gender', 'state', 'income', 'caste', 'occupation'] as const;
+type StepId = (typeof STEPS)[number];
+
+const QUESTION: Record<StepId, string> = {
+  age: 'How old are you?',
+  gender: 'What is your gender?',
+  state: 'Which state do you live in?',
+  income: 'Your family’s total yearly income?',
+  caste: 'Your social category?',
+  occupation: 'Which of these describe you?',
+};
 
 export default function Checker({ locale }: { locale: string }) {
   const [entries, setEntries] = useState<SchemeIndexEntry[] | null>(null);
   const [profile, setProfile] = useState<Profile>({});
-  const [touched, setTouched] = useState(false);
+  const [step, setStep] = useState(0); // 0..STEPS.length ; === length → results
 
-  // The ONLY network call this feature makes: one static JSON file. Everything
-  // after this runs in-browser — the user's answers never leave the device (D1).
   useEffect(() => {
     fetch(`/index/${locale}/schemes.json`)
       .then((r) => r.json())
@@ -28,18 +39,27 @@ export default function Checker({ locale }: { locale: string }) {
 
   const occupations = useMemo(() => (entries ? deriveOccupations(entries) : []), [entries]);
   const states = useMemo(() => (entries ? deriveStates(entries) : []), [entries]);
-  const matches = useMemo(
-    () => (entries ? matchAll(profile, entries) : []),
-    [entries, profile],
-  );
+  const matches = useMemo(() => (entries ? matchAll(profile, entries) : []), [entries, profile]);
 
   if (entries === null) return <p>Loading…</p>;
 
-  const set = (patch: Partial<Profile>) => {
-    setTouched(true);
-    setProfile((p) => ({ ...p, ...patch }));
-  };
+  const total = STEPS.length;
+  const atResults = step >= total;
+  const eligible = matches.filter((m) => m.verdict === 'eligible');
+  const maybe = matches.filter((m) => m.verdict === 'maybe');
 
+  const set = (patch: Partial<Profile>) => setProfile((p) => ({ ...p, ...patch }));
+  const next = () => setStep((s) => Math.min(s + 1, total));
+  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const restart = () => {
+    setProfile({});
+    setStep(0);
+  };
+  // Single-select: record the answer, then glide to the next step.
+  const choose = (patch: Partial<Profile>) => {
+    set(patch);
+    setTimeout(next, 180);
+  };
   const toggleOccupation = (o: string) =>
     set({
       occupation: profile.occupation?.includes(o)
@@ -47,135 +67,239 @@ export default function Checker({ locale }: { locale: string }) {
         : [...(profile.occupation ?? []), o],
     });
 
-  const eligible = matches.filter((m) => m.verdict === 'eligible');
-  const maybe = matches.filter((m) => m.verdict === 'maybe');
-
-  return (
-    <div className="checker">
-      <form className="checker-form" onSubmit={(e) => e.preventDefault()}>
-        <p className="privacy">
-          🔒 Your answers stay in your browser — nothing is sent to any server.
+  // -------- Results screen --------
+  if (atResults) {
+    return (
+      <div className="results">
+        <p className="results-count">
+          <strong>{eligible.length + maybe.length}</strong> of {entries.length} schemes may fit you
         </p>
 
-        <label>
-          Age
-          <input
-            type="number"
-            min={0}
-            value={profile.age ?? ''}
-            onChange={(e) =>
-              set({ age: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-          />
-        </label>
-
-        <label>
-          Gender
-          <select
-            value={profile.gender ?? ''}
-            onChange={(e) =>
-              set({ gender: (e.target.value || undefined) as Profile['gender'] })
-            }
-          >
-            <option value="">Prefer not to say</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-          </select>
-        </label>
-
-        <label>
-          Annual household income (₹)
-          <input
-            type="number"
-            min={0}
-            value={profile.income ?? ''}
-            onChange={(e) =>
-              set({ income: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-          />
-        </label>
-
-        <label>
-          Social category
-          <select
-            value={profile.caste ?? ''}
-            onChange={(e) =>
-              set({ caste: (e.target.value || undefined) as Profile['caste'] })
-            }
-          >
-            <option value="">Prefer not to say</option>
-            <option value="GEN">General</option>
-            <option value="OBC">OBC</option>
-            <option value="SC">SC</option>
-            <option value="ST">ST</option>
-          </select>
-        </label>
-
-        <label>
-          State of residence
-          <select
-            value={profile.state ?? ''}
-            onChange={(e) => set({ state: e.target.value || undefined })}
-          >
-            <option value="">Prefer not to say</option>
-            {states.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+        {eligible.length > 0 && (
+          <section>
+            <h2>✅ You likely qualify</h2>
+            {eligible.map((m) => (
+              <ResultCard key={m.scheme.id} match={m} locale={locale} />
             ))}
-            <option value={OTHER_STATE}>Another state / UT</option>
-          </select>
-        </label>
-
-        <fieldset>
-          <legend>Which describe you? (optional)</legend>
-          {occupations.map((o) => (
-            <label key={o} className="inline">
-              <input
-                type="checkbox"
-                checked={profile.occupation?.includes(o) ?? false}
-                onChange={() => toggleOccupation(o)}
-              />
-              {humanizeFlag(o)}
-            </label>
-          ))}
-        </fieldset>
-      </form>
-
-      <div className="checker-results">
-        {!touched ? (
-          <p>Answer a few questions to see schemes you may qualify for.</p>
-        ) : (
-          <>
-            <h2>
-              {eligible.length + maybe.length} of {entries.length} schemes may fit you
-            </h2>
-
-            {eligible.length > 0 && (
-              <section>
-                <h3>You likely qualify</h3>
-                {eligible.map((m) => (
-                  <ResultCard key={m.scheme.id} match={m} locale={locale} />
-                ))}
-              </section>
-            )}
-
-            {maybe.length > 0 && (
-              <section>
-                <h3>You may qualify — confirm the conditions below</h3>
-                {maybe.map((m) => (
-                  <ResultCard key={m.scheme.id} match={m} locale={locale} />
-                ))}
-              </section>
-            )}
-
-            {eligible.length + maybe.length === 0 && (
-              <p>No matches yet. Try clearing a field — leaving an answer blank widens the search.</p>
-            )}
-          </>
+          </section>
         )}
+        {maybe.length > 0 && (
+          <section>
+            <h2>🟡 You may qualify — confirm the conditions</h2>
+            {maybe.map((m) => (
+              <ResultCard key={m.scheme.id} match={m} locale={locale} />
+            ))}
+          </section>
+        )}
+        {eligible.length + maybe.length === 0 && (
+          <p>No matches. Try changing an answer — leaving fields blank widens the results.</p>
+        )}
+
+        <div className="results-actions">
+          <button className="wz-ghost" onClick={() => setStep(0)}>
+            ← Change answers
+          </button>
+          <button className="wz-ghost" onClick={restart}>
+            Start over
+          </button>
+        </div>
+        <p className="wizard-privacy">🔒 Your answers stayed in your browser — nothing was sent to any server.</p>
       </div>
+    );
+  }
+
+  // -------- Question step --------
+  const id = STEPS[step];
+  return (
+    <div className="wizard">
+      <div className="wizard-top">
+        <div className="wizard-progress" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={step}>
+          <span style={{ width: `${(step / total) * 100}%` }} />
+        </div>
+        <p className="wizard-meta">
+          Step {step + 1} of {total} · {matches.length} schemes match so far · every question is optional
+        </p>
+      </div>
+
+      <h2 className="wizard-q">{QUESTION[id]}</h2>
+
+      {id === 'age' && (
+        <NumberStep
+          value={profile.age}
+          suffix="years"
+          placeholder="e.g. 30"
+          onChange={(v) => set({ age: v })}
+          onNext={next}
+          onSkip={() => {
+            set({ age: undefined });
+            next();
+          }}
+        />
+      )}
+
+      {id === 'gender' && (
+        <div className="choice-grid">
+          <Choice active={profile.gender === 'female'} onClick={() => choose({ gender: 'female' })}>
+            Woman / Girl
+          </Choice>
+          <Choice active={profile.gender === 'male'} onClick={() => choose({ gender: 'male' })}>
+            Man / Boy
+          </Choice>
+          <Choice muted onClick={() => choose({ gender: undefined })}>
+            Prefer not to say
+          </Choice>
+        </div>
+      )}
+
+      {id === 'state' && (
+        <div className="choice-grid choice-grid-tight">
+          {states.map((s) => (
+            <Choice key={s} active={profile.state === s} onClick={() => choose({ state: s })}>
+              {s}
+            </Choice>
+          ))}
+          <Choice active={profile.state === '__other__'} onClick={() => choose({ state: '__other__' })}>
+            Another state / UT
+          </Choice>
+          <Choice muted onClick={() => choose({ state: undefined })}>
+            Prefer not to say
+          </Choice>
+        </div>
+      )}
+
+      {id === 'income' && (
+        <NumberStep
+          value={profile.income}
+          prefix="₹"
+          suffix="/ year"
+          placeholder="e.g. 250000"
+          help="Add up everyone in your household. Not sure? Skip it."
+          onChange={(v) => set({ income: v })}
+          onNext={next}
+          onSkip={() => {
+            set({ income: undefined });
+            next();
+          }}
+        />
+      )}
+
+      {id === 'caste' && (
+        <div className="choice-grid">
+          {(['GEN', 'OBC', 'SC', 'ST'] as const).map((c) => (
+            <Choice key={c} active={profile.caste === c} onClick={() => choose({ caste: c })}>
+              {c === 'GEN' ? 'General' : c}
+            </Choice>
+          ))}
+          <Choice muted onClick={() => choose({ caste: undefined })}>
+            Prefer not to say
+          </Choice>
+        </div>
+      )}
+
+      {id === 'occupation' && (
+        <>
+          <p className="wizard-help">Tap all that apply.</p>
+          <div className="choice-grid choice-grid-tight">
+            {occupations.map((o) => (
+              <Choice
+                key={o}
+                active={profile.occupation?.includes(o) ?? false}
+                onClick={() => toggleOccupation(o)}
+              >
+                {humanizeFlag(o)}
+              </Choice>
+            ))}
+          </div>
+          <div className="wizard-nav">
+            <button className="wz-ghost" onClick={back}>
+              ← Back
+            </button>
+            <button className="wz-primary" onClick={next}>
+              See my results →
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Single-select steps auto-advance; they still need a Back control. */}
+      {(id === 'gender' || id === 'state' || id === 'caste') && (
+        <div className="wizard-nav">
+          <button className="wz-ghost" onClick={back} disabled={step === 0}>
+            ← Back
+          </button>
+        </div>
+      )}
     </div>
+  );
+}
+
+function Choice({
+  children,
+  active,
+  muted,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  muted?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`choice-card${active ? ' active' : ''}${muted ? ' muted' : ''}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+function NumberStep({
+  value,
+  prefix,
+  suffix,
+  placeholder,
+  help,
+  onChange,
+  onNext,
+  onSkip,
+}: {
+  value: number | undefined;
+  prefix?: string;
+  suffix?: string;
+  placeholder?: string;
+  help?: string;
+  onChange: (v: number | undefined) => void;
+  onNext: () => void;
+  onSkip: () => void;
+}) {
+  return (
+    <>
+      <div className="number-field">
+        {prefix && <span className="affix">{prefix}</span>}
+        <input
+          type="number"
+          min={0}
+          autoFocus
+          value={value ?? ''}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+          onKeyDown={(e) => e.key === 'Enter' && onNext()}
+        />
+        {suffix && <span className="affix">{suffix}</span>}
+      </div>
+      {help && <p className="wizard-help">{help}</p>}
+      <div className="wizard-nav">
+        <button className="wz-ghost" onClick={onSkip}>
+          Skip
+        </button>
+        <button className="wz-primary" onClick={onNext}>
+          Continue →
+        </button>
+      </div>
+    </>
   );
 }
 

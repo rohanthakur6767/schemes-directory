@@ -505,5 +505,14 @@ type SchemeTranslation = {
   overflows the page. Cards reuse `.scheme-card` styling, clamped to 2 lines, tag pinned to
   bottom (uniform heights). Verified animating + 0 overflow on desktop + mobile.
 
+- **D48 — Eligibility checker → guided wizard** (2026-06-07). Rewrote `Checker.tsx` from an
+  all-at-once form into a one-question-per-step wizard (age → gender → state → income → caste →
+  occupation → results): progress bar, big choice cards (single-select auto-advances), number
+  fields for age/income, Back/Skip, and a LIVE "X schemes match so far" counter (the dynamic
+  part). Results screen reuses the verdict pills + why/to-confirm cards, ranked by benefit,
+  with Change-answers/Start-over. REUSES the pure tested matcher (no logic/data/route change);
+  100% client-side, answers never leave the browser. Verified full flow + mobile, 0 overflow.
+  Deferred: shareable-results URL; smart skipping of irrelevant questions (phase 2).
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
