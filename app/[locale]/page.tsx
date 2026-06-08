@@ -76,21 +76,6 @@ export default async function HomePage({
         </ol>
       </section>
 
-      <section className="home-section">
-        <h2>Browse by category</h2>
-        <div className="cat-grid">
-          {categories.map((h) => (
-            <Link key={h.slug} className="cat-card" href={`/${locale}/category/${h.slug}/`}>
-              <span className="cat-card-icon" aria-hidden>{iconFor(h.label)}</span>
-              <span className="cat-card-name">{h.label}</span>
-              <span className="cat-card-count">
-                {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {states.length > 0 && (
         <section className="home-section">
           <h2>Browse by state</h2>
@@ -105,6 +90,21 @@ export default async function HomePage({
           </ul>
         </section>
       )}
+
+      <section className="home-section">
+        <h2>Browse by category</h2>
+        <div className="cat-grid">
+          {categories.map((h) => (
+            <Link key={h.slug} className="cat-card" href={`/${locale}/category/${h.slug}/`}>
+              <span className="cat-card-icon" aria-hidden>{iconFor(h.label)}</span>
+              <span className="cat-card-name">{h.label}</span>
+              <span className="cat-card-count">
+                {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </>
   );
 }
