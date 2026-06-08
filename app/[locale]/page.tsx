@@ -29,7 +29,9 @@ export default async function HomePage({
       <section className="hero">
         <div className="hero-bg" aria-hidden />
         <div className="hero-inner">
-          <h1>Find the government schemes you actually qualify for</h1>
+          <h1>
+            Find the government schemes you <em className="hero-em">actually</em> qualify for
+          </h1>
           <p className="hero-sub">
             A clear, independent directory of {schemes.length}+ central and state government
             schemes in India — benefits, eligibility and how to apply, each verified against
@@ -79,15 +81,17 @@ export default async function HomePage({
       {states.length > 0 && (
         <section className="home-section">
           <h2>Browse by state</h2>
-          <ul className="hub-links">
+          <div className="place-grid">
             {states.map((h) => (
-              <li key={h.slug}>
-                <Link href={`/${locale}/state/${h.slug}/`}>
-                  {h.label} <span className="count">({h.schemes.length})</span>
-                </Link>
-              </li>
+              <Link key={h.slug} className="place-card" href={`/${locale}/state/${h.slug}/`}>
+                <span className="place-name">{h.label}</span>
+                <span className="place-count">
+                  {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
+                </span>
+                <span className="place-arrow" aria-hidden>→</span>
+              </Link>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 

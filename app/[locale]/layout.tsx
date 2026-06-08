@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Fraunces, Hanken_Grotesk, Hind } from 'next/font/google';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import SearchBox from '@/components/SearchBox';
-import IndiaFlag from '@/components/IndiaFlag';
+import Logo from '@/components/Logo';
 import '../globals.css';
+
+// Design tokens — typography. Fraunces (display, allows italic), Hanken Grotesk
+// (body/UI), Hind (Devanagari for the Hindi phase). Exposed as CSS variables and
+// referenced in globals.css. next/font self-hosts these, so static export is fine.
+const fraunces = Fraunces({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-display' });
+const hanken = Hanken_Grotesk({ subsets: ['latin'], variable: '--font-body' });
+const hind = Hind({ subsets: ['latin', 'devanagari'], weight: ['400', '500', '600', '700'], variable: '--font-hindi' });
 
 // Static export (D1): every locale is pre-rendered at build time; any other
 // value in the [locale] segment is a build-time 404, not a runtime fallback.
@@ -44,20 +52,26 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const locale = (await params).locale as Locale;
+  // Wordmark: highlight the last word ("India") in green per the theme spec.
+  const words = SITE_NAME.split(' ');
+  const brandHead = words.slice(0, -1).join(' ');
+  const brandTail = words[words.length - 1];
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${fraunces.variable} ${hanken.variable} ${hind.variable}`}>
       <body>
         <header className="site-header">
           <nav className="site-nav container">
             <a className="brand" href={`/${locale}/`}>
-              <IndiaFlag />
-              <span>{SITE_NAME}</span>
+              <Logo />
+              <span className="brand-text">
+                {brandHead} <span className="brand-in">{brandTail}</span>
+              </span>
             </a>
-            <a href={`/${locale}/schemes/`}>Browse</a>
-            <a href={`/${locale}/checker/`}>Checker</a>
+            <a className="nav-link" href={`/${locale}/schemes/`}>Browse</a>
             <div className="nav-search">
               <SearchBox locale={locale} variant="nav" />
             </div>
+            <a className="nav-cta" href={`/${locale}/checker/`}>Check eligibility</a>
           </nav>
         </header>
         <main className="container">{children}</main>

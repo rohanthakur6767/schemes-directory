@@ -3,17 +3,46 @@
   /* ONE source of truth for page width (D43). ~1280px, SaaS-standard. */
   --container: 80rem;
   --container-pad: clamp(1rem, 2.5vw, 1.5rem);
-  --header-h: 3.5rem; /* sticky header height — sticky sidebars offset below it */
-  --text: #1f2937;
-  --muted: #5b6675;
-  --accent: #1b4f9c;
-  --accent-dark: #143a73;
-  --success: #1a7f37;
-  --bg: #f6f7f9;
-  --card: #ffffff;
-  --border: #e5e7eb;
-  --radius: 10px;
-  --shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --header-h: 3.6rem; /* sticky header height — sticky sidebars offset below it */
+
+  /* ===== Warm "civic" palette (D49) — single source of truth ===== */
+  --bg: #faf4e8;            /* warm cream — page background */
+  --paper: #fffdf8;         /* card / surface */
+  --ink: #1c160f;           /* primary text */
+  --ink-soft: #5a5043;      /* secondary / muted */
+  --line: #e6dac4;          /* borders / dividers */
+  --forest: #16241c;        /* dark panels, footer */
+  --marigold: #e2571e;      /* PRIMARY action only (10%) */
+  --marigold-soft: #f5a623; /* accent / gradient partner */
+  --green: #0f6b47;         /* trust + success ("you qualify") */
+  --green-bright: #3dbb8a;  /* green on dark backgrounds */
+  --tint-green: #e3f0e8;    /* soft success chip bg */
+  /* warm card tints (rotated, not a rainbow) */
+  --tint-amber: #fbeed3;
+  /* semantic (eligibility / states) */
+  --eligible: #0f6b47;
+  --caution: #ba7517;
+  --not-eligible: #a32d2d;
+  --info: #185fa5;
+  --info-tint: #e2ecf6;
+
+  /* legacy aliases → new palette, so existing component CSS re-themes via cascade.
+     NOTE: --accent maps to GREEN (general interactive), NOT marigold. Marigold is
+     reserved for the one primary action per view (60-30-10). */
+  --text: var(--ink);
+  --muted: var(--ink-soft);
+  --accent: var(--green);
+  --accent-dark: #0b4a30;
+  --success: var(--green);
+  --card: var(--paper);
+  --border: var(--line);
+
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(28, 22, 15, 0.06), 0 4px 14px rgba(28, 22, 15, 0.05);
+
+  /* typography (set by next/font in layout.tsx) */
+  --display: var(--font-display), Georgia, "Times New Roman", serif;
+  --body: var(--font-body), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
@@ -30,9 +59,20 @@ body {
   margin: 0;
   color: var(--text);
   background: var(--bg);
-  /* Noto Sans in the stack: solid Devanagari coverage for the Hindi phase (D4/D8). */
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  font-family: var(--body);
   line-height: 1.6;
+}
+
+/* Headings = Fraunces (display); everything else inherits Hanken Grotesk (body). */
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+em {
+  font-style: italic;
 }
 
 /* THE shared container. Used by the navbar, main content, and footer so every
@@ -54,22 +94,28 @@ main {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(250, 244, 232, 0.85);
   backdrop-filter: saturate(180%) blur(10px);
   -webkit-backdrop-filter: saturate(180%) blur(10px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 /* Full-width footer bar; inner content uses .container. */
 .site-footer {
-  border-top: 1px solid var(--border);
-  background: var(--card);
+  border-top: 1px solid var(--forest);
+  background: var(--forest);
   margin-top: 3rem;
-  color: var(--muted);
+  color: rgba(244, 239, 228, 0.75);
   font-size: 0.875rem;
 }
 .footer-inner {
-  padding-block: 1.5rem;
+  padding-block: 2rem;
+}
+.site-footer a {
+  color: #f4efe4;
+}
+.site-footer .footer-links a {
+  color: var(--green-bright);
 }
 
 a {
@@ -123,14 +169,14 @@ a {
 .hero {
   /* Contained hero card — aligns with the nav content + page content (same
      left/right edges down the page). No horizontal breakout. */
-  margin: 0 0 2rem;
-  padding: 3.5rem 1.5rem;
-  background: linear-gradient(135deg, #1b4f9c 0%, #2a64b8 45%, #143a73 100%);
+  margin: 0 0 2.5rem;
+  padding: 4rem 1.5rem;
+  background: var(--forest);
   color: #fff;
   text-align: center;
   position: relative;
   z-index: 2; /* sit above the next section so the search dropdown can overlay it */
-  border-radius: 14px;
+  border-radius: 20px;
 }
 /* Decorative glows live in their own clipped layer, so the hero itself does NOT
    need overflow:hidden — letting the search dropdown spill below the hero. */
@@ -142,23 +188,17 @@ a {
   pointer-events: none;
   border-radius: inherit; /* clip the glows to the hero's rounded corners */
 }
-.hero-bg::before,
-.hero-bg::after {
+/* Single soft marigold glow in the top-right corner (no harsh gradient). */
+.hero-bg::before {
   content: '';
   position: absolute;
+  width: 30rem;
+  height: 30rem;
   border-radius: 50%;
-  filter: blur(8px);
-  opacity: 0.35;
-}
-.hero-bg::before {
-  width: 22rem; height: 22rem;
-  background: radial-gradient(circle, #5b9bff, transparent 60%);
-  top: -8rem; right: -6rem;
-}
-.hero-bg::after {
-  width: 18rem; height: 18rem;
-  background: radial-gradient(circle, #7ee0c8, transparent 60%);
-  bottom: -8rem; left: -5rem;
+  top: -12rem;
+  right: -8rem;
+  background: radial-gradient(circle, var(--marigold-soft), transparent 62%);
+  opacity: 0.25;
 }
 .hero-inner {
   position: relative;
@@ -175,9 +215,15 @@ a {
   width: 100%;
   font: inherit;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #fff;
-  color: var(--text);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+/* Focus ring = marigold (per theme spec). */
+.search-input:focus-visible {
+  outline: none;
+  border-color: var(--marigold);
+  box-shadow: 0 0 0 3px rgba(226, 87, 30, 0.25);
 }
 .search-hero {
   max-width: 34rem;
@@ -239,7 +285,7 @@ body:has(.hero) .search-nav {
 }
 .search-hit.active,
 .search-hit:hover {
-  background: #eef4ff;
+  background: var(--tint-green);
 }
 .search-msg {
   margin: 0;
@@ -248,9 +294,15 @@ body:has(.hero) .search-nav {
   font-size: 0.9rem;
 }
 .hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
-  line-height: 1.15;
+  font-size: clamp(2rem, 4.4vw, 3rem);
+  line-height: 1.12;
   margin: 0 0 1rem;
+  font-weight: 600;
+}
+/* one emphasised word, italic, in warm marigold */
+.hero-em {
+  font-style: italic;
+  color: var(--marigold-soft);
 }
 .hero-sub {
   font-size: 1.1rem;
@@ -267,28 +319,31 @@ body:has(.hero) .search-nav {
 }
 .btn {
   display: inline-block;
-  padding: 0.8rem 1.4rem;
-  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 11px;
   font-weight: 700;
   text-decoration: none;
-  font-size: 1.02rem;
+  /* ≥18.66px bold → counts as WCAG "large text", so white-on-marigold (3.74:1)
+     clears the 3:1 large-text bar on the primary CTA. */
+  font-size: 1.2rem;
 }
+/* Primary = marigold (the single most important action in this view). */
 .btn-primary {
-  background: #fff;
-  color: var(--accent-dark);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  background: var(--marigold);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(226, 87, 30, 0.35);
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  background: #f3f7ff;
+  background: #c94a14;
 }
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
 }
 .hero-trust {
   margin: 1.5rem 0 0;
@@ -333,17 +388,17 @@ body:has(.hero) .search-nav {
   width: 3.25rem;
   height: 3.25rem;
   border-radius: 50%;
-  background: #eef4ff;
+  background: var(--tint-green);
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
 }
 .how-step-no {
   display: block;
-  font-size: 0.75rem;
+  font-family: var(--display);
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-style: italic;
+  color: var(--marigold-soft);
 }
 .how-steps h3 {
   margin: 0.25rem 0 0.5rem;
@@ -447,41 +502,69 @@ body:has(.hero) .search-nav {
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
   gap: 1rem;
 }
-.cat-card {
+.cat-card,
+.place-card {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   padding: 1.25rem 1rem;
   border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   text-decoration: none;
-  color: var(--text);
+  color: var(--ink);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.cat-card:hover {
+.cat-card:hover,
+.place-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
+  box-shadow: var(--shadow);
 }
 .cat-card-icon {
   font-size: 1.9rem;
   line-height: 1;
 }
-.cat-card-name {
-  font-weight: 700;
+.cat-card-name,
+.place-name {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
 }
-.cat-card-count {
+.cat-card-count,
+.place-count {
   font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--ink-soft);
 }
-/* Soft tints cycled across the grid — pure CSS, no images. */
-.cat-card:nth-child(8n + 1) { background: #eef4ff; }
-.cat-card:nth-child(8n + 2) { background: #eafaf1; }
-.cat-card:nth-child(8n + 3) { background: #fff4e6; }
-.cat-card:nth-child(8n + 4) { background: #fdeef7; }
-.cat-card:nth-child(8n + 5) { background: #f3eefe; }
-.cat-card:nth-child(8n + 6) { background: #e9fbfa; }
-.cat-card:nth-child(8n + 7) { background: #fdf3e3; }
-.cat-card:nth-child(8n + 0) { background: #eef7ee; }
+/* Cohesive WARM tints, rotated (cream → green → amber) — NOT a rainbow. */
+.cat-card:nth-child(3n + 1),
+.place-card:nth-child(3n + 1) { background: var(--paper); }
+.cat-card:nth-child(3n + 2),
+.place-card:nth-child(3n + 2) { background: var(--tint-green); }
+.cat-card:nth-child(3n + 0),
+.place-card:nth-child(3n + 0) { background: var(--tint-amber); }
+
+/* State cards (Browse by state) */
+.place-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.place-card {
+  position: relative;
+}
+.place-arrow {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--marigold);
+  font-weight: 700;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.place-card:hover .place-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
 
 /* Content / legal pages */
 .content-page {
@@ -526,28 +609,56 @@ body:has(.hero) .search-nav {
 
 .site-nav a {
   text-decoration: none;
-  color: var(--text);
+}
+.nav-link {
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.nav-link:hover {
+  color: var(--ink);
+}
+/* push the CTA to the far right */
+.nav-cta {
+  margin-left: auto;
 }
 
-.site-nav a:first-child {
-  font-weight: 700;
-  color: var(--accent);
-}
-
-/* Brand: flag + title, vertically centred, ~10px apart. Flag is ~19px tall —
-   smaller than the text line box, so the navbar height is unchanged. */
+/* Brand: logo mark + Fraunces wordmark, "India" in green. */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
-.brand-flag {
-  height: 1.2rem;
-  width: auto;
+.brand-logo {
+  width: 2.1rem;
+  height: 2.1rem;
   flex-shrink: 0;
   display: block;
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.brand-text {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.brand-in {
+  color: var(--green);
+}
+
+/* Nav CTA pill: ink by default, marigold on hover (the one nav action). */
+.nav-cta {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.5rem 1.05rem;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+.nav-cta:hover {
+  background: var(--marigold);
+  color: #fff;
 }
 
 /* ============================ Scheme page ============================ */
@@ -601,9 +712,9 @@ body:has(.hero) .search-nav {
   color: #fff;
 }
 .badge-cat {
-  background: #eef2fb;
-  color: var(--accent-dark);
-  border: 1px solid #dce4f5;
+  background: var(--tint-amber);
+  color: #8a4b12;
+  border: 1px solid var(--line);
 }
 
 .scheme-grid {
@@ -630,7 +741,7 @@ body:has(.hero) .search-nav {
   margin: 0 0 0.75rem;
   font-size: 1.2rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #eef2fb;
+  border-bottom: 2px solid var(--line);
 }
 .scheme-main .card p {
   margin: 0;
@@ -816,7 +927,7 @@ body:has(.hero) .search-nav {
   gap: 0.85rem;
 }
 .glossary div {
-  border-left: 3px solid #eef2fb;
+  border-left: 3px solid var(--line);
   padding-left: 0.85rem;
 }
 .glossary dt {
@@ -956,7 +1067,7 @@ body:has(.hero) .search-nav {
   font-size: 1rem;
   margin: 1.75rem 0 0.85rem;
   padding-bottom: 0.4rem;
-  border-bottom: 2px solid #eef2fb;
+  border-bottom: 2px solid var(--line);
 }
 
 .result-card p {
@@ -972,7 +1083,7 @@ body:has(.hero) .search-nav {
 }
 
 .result-card .why li {
-  color: #1a7f37;
+  color: var(--green);
   list-style: none;
   margin-left: -0.6rem;
 }
@@ -1115,27 +1226,54 @@ body:has(.hero) .search-nav {
 .scheme-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  gap: 0.4rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
   box-shadow: var(--shadow);
-  padding: 1.1rem 1.25rem;
+  padding: 1.25rem 1.35rem;
   text-decoration: none;
-  color: var(--text);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  color: var(--ink);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 .scheme-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(28, 22, 15, 0.12);
 }
+/* Category icon as a soft tile. */
 .scheme-card-icon {
-  font-size: 1.6rem;
+  display: inline-grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: var(--tint-green);
+  font-size: 1.4rem;
   line-height: 1;
+  margin-bottom: 0.15rem;
 }
 .scheme-card strong {
-  font-size: 1.02rem;
-  color: var(--accent-dark);
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+/* Level badge: Central = marigold tint, State = info-blue tint. */
+.level-badge {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+}
+.level-central {
+  color: #9a3a12;
+  background: #fbe6d8;
+}
+.level-state {
+  color: #134a7e;
+  background: var(--info-tint);
 }
 .scheme-card p {
   margin: 0;
@@ -1229,7 +1367,7 @@ body:has(.hero) .search-nav {
 }
 .choice-card.active {
   border-color: var(--accent);
-  background: #eef4ff;
+  background: var(--tint-green);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 .choice-card.muted {

@@ -514,5 +514,19 @@ type SchemeTranslation = {
   100% client-side, answers never leave the browser. Verified full flow + mobile, 0 overflow.
   Deferred: shareable-results URL; smart skipping of irrelevant questions (phase 2).
 
+- **D49 — Warm "civic" re-theme** (2026-06-07). Replaced the blue theme with a cream/forest/
+  marigold/green palette + Fraunces (display) / Hanken Grotesk (body) / Hind (Devanagari) via
+  next/font. ALL tokens centralised in `:root` (globals.css); legacy aliases (--accent→green,
+  --card→paper, --border→line, --text→ink, --bg→cream) repoint so components re-theme via the
+  cascade — no scattered hex. 60-30-10: cream page / forest hero+footer / marigold for the one
+  primary CTA only. Logo: replaced the (now-banned) tricolor flag with the original "Naya
+  Savera" rising-sun SVG — NO flag/emblem/chakra (independent). Browse-by-state pills → cards
+  (the one structural change); category + state cards share cohesive warm tints (no rainbow);
+  scheme cards get tint-green icon tiles + Central(marigold-tint)/State(blue-tint) level badges.
+  Contrast: ink-on-cream 16.4:1, green-on-cream 5.96:1, green-on-tint 5.57:1 (all pass AA);
+  white-on-marigold 3.74:1 → used only on the hero CTA, sized large+bold (1.2rem/700) so it
+  clears the 3:1 large-text bar. Nav label "Checker"→"Check eligibility" (spec §1). Eligibility
+  never conveyed by colour alone (verdict pills pair colour + icon + word). Light theme only.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

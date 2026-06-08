@@ -26,6 +26,7 @@ export default function FeaturedMarquee({
       <span className="scheme-card-icon" aria-hidden>
         {iconFor(s.categories[0])}
       </span>
+      <span className="level-badge level-central">Central</span>
       <strong>{s.prose.name}</strong>
       <p>{s.prose.summary}</p>
       <span className="scheme-card-tags">

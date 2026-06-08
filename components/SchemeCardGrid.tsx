@@ -19,6 +19,9 @@ export default function SchemeCardGrid({
           <span className="scheme-card-icon" aria-hidden>
             {iconFor(s.categories[0])}
           </span>
+          <span className={`level-badge level-${s.level === 'central' ? 'central' : 'state'}`}>
+            {s.level === 'central' ? 'Central' : 'State'}
+          </span>
           <strong>{s.prose.name}</strong>
           <p>{s.prose.summary}</p>
           <span className="scheme-card-tags">
