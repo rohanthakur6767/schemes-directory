@@ -5,6 +5,8 @@ import type { Locale } from '@/lib/i18n';
 import { SITE_NAME } from '@/lib/site';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs } from '@/lib/hubs';
+import { iconFor } from '@/lib/categoryIcons';
+import SchemeCardGrid from '@/components/SchemeCardGrid';
 
 export const dynamicParams = false;
 
@@ -37,22 +39,27 @@ export default async function CategoryHub({ params }: Props) {
   );
   if (!hub) notFound();
 
+  const n = hub.schemes.length;
   return (
-    <>
-      <h1>{hub.label} schemes in India</h1>
-      <p>
-        {hub.schemes.length} government {hub.label.toLowerCase()} scheme
-        {hub.schemes.length === 1 ? '' : 's'} — tap any scheme for eligibility, benefits and
-        how to apply.
-      </p>
-      <ul className="hub-list">
-        {hub.schemes.map((s) => (
-          <li key={s.id}>
-            <Link href={`/${locale}/schemes/${s.slug}/`}>{s.prose.name}</Link>
-            <p>{s.prose.summary}</p>
-          </li>
-        ))}
-      </ul>
-    </>
+    <article className="hub">
+      <nav className="breadcrumbs" aria-label="Breadcrumb">
+        <Link href={`/${locale}/`}>Home</Link>
+        <span aria-hidden>›</span>
+        <Link href={`/${locale}/schemes/`}>Browse</Link>
+        <span aria-hidden>›</span>
+        <span className="current">{hub.label}</span>
+      </nav>
+      <header className="hub-header">
+        <h1>
+          <span aria-hidden>{iconFor(hub.label)}</span> {hub.label} schemes in India
+        </h1>
+        <p className="hub-intro">
+          Browse {n} government {hub.label.toLowerCase()} scheme{n === 1 ? '' : 's'} in India.
+          Tap any scheme to see who is eligible, the benefits, and how to apply — each verified
+          against its official source.
+        </p>
+      </header>
+      <SchemeCardGrid schemes={hub.schemes} locale={locale} />
+    </article>
   );
 }

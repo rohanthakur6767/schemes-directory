@@ -5,6 +5,7 @@ import type { Locale } from '@/lib/i18n';
 import { SITE_NAME } from '@/lib/site';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveStateHubs } from '@/lib/hubs';
+import SchemeCardGrid from '@/components/SchemeCardGrid';
 
 export const dynamicParams = false;
 
@@ -37,22 +38,28 @@ export default async function StateHub({ params }: Props) {
   );
   if (!hub) notFound();
 
+  const n = hub.schemes.length;
   return (
-    <>
-      <h1>Government schemes in {hub.label}</h1>
-      <p>
-        {hub.schemes.length} state government scheme{hub.schemes.length === 1 ? '' : 's'} in{' '}
-        {hub.label}. Central schemes also apply here — see the{' '}
-        <Link href={`/${locale}/checker/`}>eligibility checker</Link>.
-      </p>
-      <ul className="hub-list">
-        {hub.schemes.map((s) => (
-          <li key={s.id}>
-            <Link href={`/${locale}/schemes/${s.slug}/`}>{s.prose.name}</Link>
-            <p>{s.prose.summary}</p>
-          </li>
-        ))}
-      </ul>
-    </>
+    <article className="hub">
+      <nav className="breadcrumbs" aria-label="Breadcrumb">
+        <Link href={`/${locale}/`}>Home</Link>
+        <span aria-hidden>›</span>
+        <Link href={`/${locale}/schemes/`}>Browse</Link>
+        <span aria-hidden>›</span>
+        <span className="current">{hub.label}</span>
+      </nav>
+      <header className="hub-header">
+        <h1>
+          <span aria-hidden>📍</span> Government schemes in {hub.label}
+        </h1>
+        <p className="hub-intro">
+          {n} state government scheme{n === 1 ? '' : 's'} listed for {hub.label}. Central
+          schemes apply here too — use the{' '}
+          <Link href={`/${locale}/checker/`}>eligibility checker</Link> to find everything you
+          qualify for.
+        </p>
+      </header>
+      <SchemeCardGrid schemes={hub.schemes} locale={locale} />
+    </article>
   );
 }

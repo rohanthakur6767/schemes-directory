@@ -991,18 +991,65 @@ body:has(.hero) .search-nav {
   font-size: 0.85rem;
 }
 
-.hub-list {
-  list-style: none;
-  padding: 0;
+/* Hub pages (category + state templates) */
+.hub-header {
+  margin-bottom: 1.5rem;
+}
+.hub-header h1 {
+  font-size: 1.9rem;
+  line-height: 1.2;
+  margin: 0.25rem 0 0.6rem;
+}
+.hub-intro {
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: 0;
 }
 
-.hub-list li {
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 0;
+/* Scheme card grid (shared by both hub templates via SchemeCardGrid). */
+.scheme-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 1rem;
 }
-
-.hub-list p {
-  margin: 0.25rem 0 0;
+.scheme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.scheme-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.1);
+}
+.scheme-card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.scheme-card strong {
+  font-size: 1.02rem;
+  color: var(--accent-dark);
+}
+.scheme-card p {
+  margin: 0;
+  flex: 1;
   color: var(--muted);
   font-size: 0.9rem;
+  line-height: 1.5;
+}
+.scheme-card-tags {
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
 }

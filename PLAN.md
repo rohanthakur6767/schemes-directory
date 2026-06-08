@@ -480,5 +480,14 @@ type SchemeTranslation = {
   page keeps scrolling (default scroll-chaining — deliberately NOT `overscroll-behavior:
   contain`). Mobile keeps `position: static` (panels stack, no inner scroll). Added `--header-h`.
 
+- **D45 — Hub templates restyled to match Browse** (2026-06-07). Both hub TEMPLATES
+  (`category/[category]/page.tsx`, `state/[state]/page.tsx`) now render breadcrumb + icon
+  title + unique intro + a shared `<SchemeCardGrid>` (cards with icon, name, summary, tags;
+  hover). Because there are only these two `[param]` templates and `generateStaticParams`
+  emits one page per slug, EVERY category + state page gets the look automatically. Verified:
+  states Gujarat/Tamil Nadu/Assam + categories Health/Education/Scholarship, desktop + mobile
+  (grid → 1 col, 0 overflow). NOTE: a state page exists only for states with ≥1 published
+  scheme (e.g. Uttarakhand has none yet → no page until one is added).
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
