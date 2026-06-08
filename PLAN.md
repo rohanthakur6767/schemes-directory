@@ -495,5 +495,15 @@ type SchemeTranslation = {
   Navbar height unchanged (flag < text line box). Verified balanced on desktop, no wrap/
   overflow on mobile (375px), accessible name preserved.
 
+- **D47 — Home "Popular central schemes" marquee** (2026-06-07). Auto-scrolling (right→left)
+  showcase of published CENTRAL schemes (filtered from the existing query, capped 12 — no DB
+  change) + a "View all schemes →" link to /schemes/. Placed right after the hero.
+  `components/FeaturedMarquee.tsx` — pure-CSS animation (no client JS, static-export friendly):
+  list rendered twice, `translateX 0→-50%` for a seamless loop; pause on hover/focus-within;
+  `prefers-reduced-motion` → static manually-scrollable row with duplicates hidden; duplicate
+  set `aria-hidden`+`tabIndex=-1`; edge-fade mask; `overflow:hidden` so the wide track never
+  overflows the page. Cards reuse `.scheme-card` styling, clamped to 2 lines, tag pinned to
+  bottom (uniform heights). Verified animating + 0 overflow on desktop + mobile.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.

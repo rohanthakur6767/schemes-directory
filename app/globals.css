@@ -360,6 +360,88 @@ body:has(.hero) .search-nav {
 .home-section {
   margin-bottom: 2.5rem;
 }
+
+/* Section header with a "view all" link */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.section-head h2 {
+  margin: 0;
+  text-align: left;
+  font-size: 1.5rem;
+}
+.see-all {
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.see-all:hover {
+  text-decoration: underline;
+}
+
+/* ===== Featured marquee (auto-scroll right→left) ===== */
+.marquee {
+  overflow: hidden;
+  /* fade cards in/out at the edges instead of a hard clip */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+/* Pause when the user hovers or tabs into a card, so they can read + click. */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); } /* exactly one of the two copies */
+}
+.marquee-card {
+  flex: 0 0 17rem;
+  width: 17rem;
+}
+/* Cards stretch to equal height; pin the tag line to the bottom so short cards
+   don't leave an awkward gap below it. */
+.marquee .marquee-card .scheme-card-tags {
+  margin-top: auto;
+}
+/* Keep card heights uniform: clamp the summary to 2 lines. Higher specificity
+   than `.scheme-card p` so the clamp actually wins. */
+.marquee .marquee-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: none;
+}
+/* Accessibility: no auto-motion for users who ask for reduced motion.
+   Becomes a manually-scrollable row, and the duplicate set is removed. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .marquee-track {
+    animation: none;
+    width: auto;
+  }
+  .marquee-track > [aria-hidden='true'] {
+    display: none;
+  }
+}
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));

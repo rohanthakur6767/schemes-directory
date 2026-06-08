@@ -4,6 +4,7 @@ import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
 import { iconFor } from '@/lib/categoryIcons';
 import SearchBox from '@/components/SearchBox';
+import FeaturedMarquee from '@/components/FeaturedMarquee';
 
 const STEPS = [
   { icon: '🔎', title: 'Find your scheme', text: 'Browse by category, state, or who it’s for — across central and state government.' },
@@ -20,6 +21,8 @@ export default async function HomePage({
   const schemes = await getPublishedSchemes(locale as Locale);
   const categories = deriveCategoryHubs(schemes);
   const states = deriveStateHubs(schemes);
+  // Flagship central schemes for the home showcase (capped for a tidy loop).
+  const central = schemes.filter((s) => s.level === 'central').slice(0, 12);
 
   return (
     <>
@@ -46,6 +49,18 @@ export default async function HomePage({
           <p className="hero-trust">🔒 Free • Independent • Your answers stay in your browser</p>
         </div>
       </section>
+
+      {central.length > 0 && (
+        <section className="home-section featured">
+          <div className="section-head">
+            <h2>Popular central schemes</h2>
+            <Link className="see-all" href={`/${locale}/schemes/`}>
+              View all schemes →
+            </Link>
+          </div>
+          <FeaturedMarquee schemes={central} locale={locale} />
+        </section>
+      )}
 
       <section className="how">
         <h2>How it works</h2>
