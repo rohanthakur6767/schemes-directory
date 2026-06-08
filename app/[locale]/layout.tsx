@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import SearchBox from '@/components/SearchBox';
+import IndiaFlag from '@/components/IndiaFlag';
 import '../globals.css';
 
 // Static export (D1): every locale is pre-rendered at build time; any other
@@ -48,7 +49,10 @@ export default async function RootLayout({
       <body>
         <header className="site-header">
           <nav className="site-nav container">
-            <a className="brand" href={`/${locale}/`}>{SITE_NAME}</a>
+            <a className="brand" href={`/${locale}/`}>
+              <IndiaFlag />
+              <span>{SITE_NAME}</span>
+            </a>
             <a href={`/${locale}/schemes/`}>Browse</a>
             <a href={`/${locale}/checker/`}>Checker</a>
             <div className="nav-search">

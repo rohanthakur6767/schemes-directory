@@ -452,6 +452,22 @@ body:has(.hero) .search-nav {
   color: var(--accent);
 }
 
+/* Brand: flag + title, vertically centred, ~10px apart. Flag is ~19px tall —
+   smaller than the text line box, so the navbar height is unchanged. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.brand-flag {
+  height: 1.2rem;
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
 /* ============================ Scheme page ============================ */
 .breadcrumbs {
   display: flex;

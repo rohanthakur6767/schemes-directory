@@ -489,5 +489,11 @@ type SchemeTranslation = {
   (grid → 1 col, 0 overflow). NOTE: a state page exists only for states with ≥1 published
   scheme (e.g. Uttarakhand has none yet → no page until one is added).
 
+- **D46 — Indian-flag brand icon** (2026-06-07). Original inline-SVG tricolor + 24-spoke
+  Ashoka Chakra (`components/IndiaFlag.tsx`), 19px tall (3:2), 10px gap, left of the brand
+  title. `aria-hidden` (decorative — the "GovSchemes India" text is the accessible name).
+  Navbar height unchanged (flag < text line box). Verified balanced on desktop, no wrap/
+  overflow on mobile (375px), accessible name preserved.
+
 > ⚠️ 2026-06-07: PLAN.md was found reverted to its original once; rebuilt from the live
 > codebase + decision history. If you use git to revert, avoid clobbering this file.
