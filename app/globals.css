@@ -553,6 +553,28 @@ body:has(.hero) .search-nav {
 .place-card {
   position: relative;
 }
+/* Circular CM avatar (photo) or initials monogram fallback. */
+.place-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  margin-bottom: 0.15rem;
+  flex: 0 0 auto;
+}
+.place-monogram {
+  display: grid;
+  place-items: center;
+  background: var(--tint-green);
+  color: var(--green);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
 .place-arrow {
   position: absolute;
   top: 1rem;

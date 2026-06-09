@@ -3,8 +3,15 @@ import type { Locale } from '@/lib/i18n';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
 import { iconFor } from '@/lib/categoryIcons';
+import { stateImage } from '@/lib/stateImages';
 import SearchBox from '@/components/SearchBox';
 import FeaturedMarquee from '@/components/FeaturedMarquee';
+
+// State initials for cards without a photo: "Tamil Nadu" → "TN", "Goa" → "GO".
+const initials = (s: string) => {
+  const words = s.trim().split(/\s+/);
+  return (words.length > 1 ? words[0][0] + words[1][0] : s.slice(0, 2)).toUpperCase();
+};
 
 const STEPS = [
   { icon: '🔎', title: 'Find your scheme', text: 'Browse by category, state, or who it’s for — across central and state government.' },
@@ -82,15 +89,34 @@ export default async function HomePage({
         <section className="home-section">
           <h2>Browse by state</h2>
           <div className="place-grid">
-            {states.map((h) => (
-              <Link key={h.slug} className="place-card" href={`/${locale}/state/${h.slug}/`}>
-                <span className="place-name">{h.label}</span>
-                <span className="place-count">
-                  {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
-                </span>
-                <span className="place-arrow" aria-hidden>→</span>
-              </Link>
-            ))}
+            {states.map((h) => {
+              const img = stateImage(h.label);
+              return (
+                <Link key={h.slug} className="place-card" href={`/${locale}/state/${h.slug}/`}>
+                  {img ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="place-avatar"
+                      src={img}
+                      alt=""
+                      width={72}
+                      height={72}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span className="place-avatar place-monogram" aria-hidden>
+                      {initials(h.label)}
+                    </span>
+                  )}
+                  <span className="place-name">{h.label}</span>
+                  <span className="place-count">
+                    {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
+                  </span>
+                  <span className="place-arrow" aria-hidden>→</span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}
