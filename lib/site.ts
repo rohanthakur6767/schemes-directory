@@ -10,6 +10,6 @@ export const SITE_URL = 'https://schemes-directory.pages.dev';
 // the domain. AdSense expects a working contact route.
 export const CONTACT_EMAIL = 'govschemes.contact@gmail.com';
 
-// Operator name for the About page (E-E-A-T — a real, named operator ranks better
-// for benefits/YMYL content). Replace with your name or organisation.
-export const SITE_OPERATOR = 'Rohan Thakur';
+// Publisher / operator name (brand). Used for attribution and available for
+// structured data (E-E-A-T — a clearly named publisher helps for YMYL content).
+export const SITE_OPERATOR = 'GovSchemes India';

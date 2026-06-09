@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { SITE_NAME, SITE_OPERATOR } from '@/lib/site';
+import { SITE_NAME } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'About us',
@@ -47,9 +47,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       <h2>Our independence</h2>
       <p>
-        {SITE_NAME} is run by {SITE_OPERATOR}. We are <strong>not</strong> affiliated
-        with, authorised by, or endorsed by the Government of India or any state
-        government. We don’t process applications, charge fees, or act as
+        {SITE_NAME} is an independently run informational website. We are{' '}
+        <strong>not</strong> affiliated with, authorised by, or endorsed by the
+        Government of India or any state government. We don’t process applications, charge fees, or act as
         intermediaries — we point you to the official source, where you apply directly
         and for free.
       </p>

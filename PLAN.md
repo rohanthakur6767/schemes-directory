@@ -262,7 +262,7 @@ type SchemeTranslation = {
       opt-out links + India data note + checker-stays-in-browser), Disclaimer (not govt,
       verify on official source, no fees), Contact (real email). Footer links to all four on
       every page; added to sitemap.
-- [x] Real `CONTACT_EMAIL` (govschemes.contact@gmail.com) + `SITE_OPERATOR` (Rohan Thakur) set.
+- [x] Real `CONTACT_EMAIL` (govschemes.contact@gmail.com) + `SITE_OPERATOR` (GovSchemes India) set.
 - [x] **Home page redesign (D36):** gradient hero (CSS glows, big headline, value prop,
       prominent checker CTA + browse), 3-step "How it works" cards, colour-tinted category
       card grid with icons + counts + hover. 100% CSS/emoji — NO photos/images (AdSense-safe,
