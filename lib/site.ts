@@ -1,9 +1,9 @@
 // Site identity in one place — swap these when the domain is purchased.
 export const SITE_NAME = 'GovSchemes India';
 
-// The live Cloudflare Pages URL until the real domain is purchased; used for
-// canonical URLs, hreflang, sitemap and JSON-LD.
-export const SITE_URL = 'https://schemes-directory.pages.dev';
+// Canonical site URL (www). Drives canonical tags, hreflang, sitemap, robots and
+// JSON-LD. (Was https://schemes-directory.pages.dev before the domain was bought.)
+export const SITE_URL = 'https://www.indiagovschemes.com';
 
 // Public contact address (shown on Contact + Privacy pages). CHANGE THIS to a
 // real inbox you monitor — your own email now, or a domain address once you buy
