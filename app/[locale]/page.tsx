@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import type { Locale } from '@/lib/i18n';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
@@ -12,6 +13,13 @@ import BannerCarousel from '@/components/BannerCarousel';
 const initials = (s: string) => {
   const words = s.trim().split(/\s+/);
   return (words.length > 1 ? words[0][0] + words[1][0] : s.slice(0, 2)).toUpperCase();
+};
+
+// Self-referencing canonical + og:url for the home page (resolved against
+// metadataBase = https://www.indiagovschemes.com in the layout).
+export const metadata: Metadata = {
+  alternates: { canonical: '/en/' },
+  openGraph: { url: '/en/' },
 };
 
 const STEPS = [
