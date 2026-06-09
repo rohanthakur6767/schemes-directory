@@ -6,6 +6,7 @@ import { iconFor } from '@/lib/categoryIcons';
 import { stateImage } from '@/lib/stateImages';
 import SearchBox from '@/components/SearchBox';
 import FeaturedMarquee from '@/components/FeaturedMarquee';
+import BannerCarousel from '@/components/BannerCarousel';
 
 // State initials for cards without a photo: "Tamil Nadu" → "TN", "Goa" → "GO".
 const initials = (s: string) => {
@@ -33,6 +34,8 @@ export default async function HomePage({
 
   return (
     <>
+      <BannerCarousel locale={locale} />
+
       <section className="hero">
         <div className="hero-bg" aria-hidden />
         <div className="hero-inner">
