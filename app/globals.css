@@ -622,6 +622,45 @@ body:has(.hero) .search-nav {
   font-weight: 600;
 }
 
+/* Official portal links — white chips so the mismatched logo backgrounds
+   (some light, PIB dark) read consistently on the forest footer. */
+.footer-portals {
+  margin-top: 1.5rem;
+}
+.footer-portals-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 228, 0.55);
+  margin-bottom: 0.6rem;
+}
+.footer-portal-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.footer-portal {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.footer-portal:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.footer-portal img {
+  display: block;
+  height: 30px;
+  width: auto;
+}
+
 /* Nav content (inside .site-header). Width/centering/padding come from .container. */
 .site-nav {
   display: flex;

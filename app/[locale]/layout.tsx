@@ -94,6 +94,52 @@ export default async function RootLayout({
               Data compiled from official government sources (Open Government
               Data licence — GODL-India), rewritten and verified by us.
             </p>
+            {/* Outbound links to official portals — framed as references, NOT
+                partners/endorsers, to stay consistent with the disclaimer above. */}
+            <div className="footer-portals">
+              <span className="footer-portals-label">Official government portals</span>
+              <div className="footer-portal-list">
+                <a
+                  className="footer-portal"
+                  href="https://www.mygov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/mygov.jpg" alt="MyGov" width={220} height={60} loading="lazy" />
+                </a>
+                <a
+                  className="footer-portal"
+                  href="https://pib.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/pibss.png"
+                    alt="Press Information Bureau (PIB)"
+                    width={237}
+                    height={98}
+                    loading="lazy"
+                  />
+                </a>
+                <a
+                  className="footer-portal"
+                  href="https://www.india.gov.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/india-gov-in.jpg"
+                    alt="India.gov.in — National Portal of India"
+                    width={200}
+                    height={55}
+                    loading="lazy"
+                  />
+                </a>
+              </div>
+            </div>
           </div>
         </footer>
       </body>
