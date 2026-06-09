@@ -8,30 +8,30 @@ import Link from 'next/link';
 // and buttons. Per slide:
 //   img      — path under /public (optimized JPEGs live in scheme_image/opt/)
 //   alt      — REQUIRED for accessibility; describe the banner
-//   caption  — optional overlay heading (leave out for no text)
-//   ctaText  — button label. Omit → "Check what you qualify for →".
-//              Set to null → NO button (use when the image already has one baked in).
-//   href     — optional full path (defaults to the eligibility checker)
+//   caption  — OPTIONAL overlay heading text (omit for none)
+//   ctaText  — OPTIONAL overlay button label (omit for none)
+//   href     — where the WHOLE slide links (defaults to the eligibility checker)
+// The whole banner is clickable. These images already contain their own titles and
+// buttons, so NO overlay is set by default — add caption/ctaText to a slide only if
+// you want extra text on top of it.
 // ───────────────────────────────────────────────────────────────────────────
 type Slide = {
   img: string;
   alt: string;
   caption?: string;
-  ctaText?: string | null;
+  ctaText?: string;
   href?: string; // e.g. "/en/schemes/pm-kisan/" — omit to link to the checker
 };
 
 const SLIDES: Slide[] = [
-  // image1 already has its own "Explore Schemes" button → hide the overlay one.
-  { img: '/images/scheme_image/opt/image1.jpg', alt: 'Featured government scheme', ctaText: null },
-  { img: '/images/scheme_image/opt/image2.jpg', alt: 'Featured government scheme' },
+  { img: '/images/scheme_image/opt/image1.jpg', alt: 'Discover government schemes for a better tomorrow' },
+  { img: '/images/scheme_image/opt/image2.jpg', alt: 'Healthcare schemes for every Indian' },
   { img: '/images/scheme_image/opt/image3.jpg', alt: 'Featured government scheme' },
   { img: '/images/scheme_image/opt/image4.jpg', alt: 'Featured government scheme' },
   { img: '/images/scheme_image/opt/image5.jpg', alt: 'Featured government scheme' },
 ];
 
 const AUTO_MS = 5000; // auto-advance interval
-const DEFAULT_CTA = 'Check what you qualify for →';
 
 export default function BannerCarousel({ locale }: { locale: string }) {
   const count = SLIDES.length;
@@ -50,18 +50,32 @@ export default function BannerCarousel({ locale }: { locale: string }) {
     return () => clearInterval(id);
   }, [paused, reduced, count]);
 
-  // Touch swipe (mobile).
+  // Touch swipe (mobile). suppressClick stops a swipe from also firing the
+  // slide-link navigation when the finger lifts.
   const startX = useRef<number | null>(null);
+  const suppressClick = useRef(false);
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
+    suppressClick.current = false;
     setPaused(true);
   };
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (startX.current === null) return;
-    const dx = e.changedTouches[0].clientX - startX.current;
-    if (Math.abs(dx) > 40) (dx < 0 ? next : prev)();
+    if (startX.current !== null) {
+      const dx = e.changedTouches[0].clientX - startX.current;
+      if (Math.abs(dx) > 40) {
+        (dx < 0 ? next : prev)();
+        suppressClick.current = true;
+      }
+    }
     startX.current = null;
     setPaused(false);
+  };
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (suppressClick.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      suppressClick.current = false;
+    }
   };
 
   // Arrow-key navigation when the carousel has focus.
@@ -85,24 +99,31 @@ export default function BannerCarousel({ locale }: { locale: string }) {
       onBlur={() => setPaused(false)}
       onKeyDown={onKeyDown}
     >
-      <div className="bc-viewport" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div
+        className="bc-viewport"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onClickCapture={onClickCapture}
+      >
         <div className="bc-track" style={{ transform: `translateX(-${index * 100}%)` }}>
           {SLIDES.map((s, i) => {
             const active = i === index;
             const href = s.href ?? `/${locale}/checker/`;
             return (
-              <div
+              <Link
                 className="bc-slide"
                 key={s.img}
-                role="group"
+                href={href}
                 aria-roledescription="slide"
-                aria-label={`${i + 1} of ${count}`}
+                aria-label={`${s.alt} — slide ${i + 1} of ${count}`}
                 aria-hidden={!active}
+                tabIndex={active ? 0 : -1}
+                draggable={false}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={s.img}
-                  alt={s.alt}
+                  alt=""
                   width={1600}
                   height={900}
                   loading={i === 0 ? 'eager' : 'lazy'}
@@ -110,17 +131,13 @@ export default function BannerCarousel({ locale }: { locale: string }) {
                   draggable={false}
                   fetchPriority={i === 0 ? 'high' : 'auto'}
                 />
-                {(s.caption || s.ctaText !== null) && (
-                  <div className="bc-caption">
-                    {s.caption && <p className="bc-caption-text">{s.caption}</p>}
-                    {s.ctaText !== null && (
-                      <Link className="btn btn-primary bc-cta" href={href} tabIndex={active ? 0 : -1}>
-                        {s.ctaText ?? DEFAULT_CTA}
-                      </Link>
-                    )}
-                  </div>
+                {(s.caption || s.ctaText) && (
+                  <span className="bc-caption">
+                    {s.caption && <span className="bc-caption-text">{s.caption}</span>}
+                    {s.ctaText && <span className="btn btn-primary bc-cta">{s.ctaText}</span>}
+                  </span>
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>

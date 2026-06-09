@@ -39,13 +39,10 @@ export default async function HomePage({
       <section className="hero">
         <div className="hero-bg" aria-hidden />
         <div className="hero-inner">
-          <h1>
-            Find the government schemes you <em className="hero-em">actually</em> qualify for
-          </h1>
+          <h1>Find government schemes made for you</h1>
           <p className="hero-sub">
-            A clear, independent directory of {schemes.length}+ central and state government
-            schemes in India — benefits, eligibility and how to apply, each verified against
-            official sources.
+            Search {schemes.length}+ central and state schemes — see what you can get,
+            who can apply, and how. Free, and your details never leave your phone.
           </p>
           <div className="hero-search">
             <SearchBox locale={locale} variant="hero" />
@@ -58,7 +55,6 @@ export default async function HomePage({
               Browse all schemes
             </Link>
           </div>
-          <p className="hero-trust">🔒 Free • Independent • Your answers stay in your browser</p>
         </div>
       </section>
 

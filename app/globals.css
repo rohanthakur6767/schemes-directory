@@ -182,10 +182,11 @@ a {
   border-radius: 20px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
-  /* Matches image1's cream background so its thin contain-margins are invisible;
-     the exact-16:9 slides fill the frame and never show this colour. */
   background: #faf1e8;
-  aspect-ratio: 16 / 9; /* fixed frame → reserves height, zero layout shift */
+  /* Shorter than the original 16/9, but NOT so wide that cover has to zoom the
+     full-poster images and clip their content. 2.4 stays > image1's 2.11 (no side
+     crop) while keeping its title/cards/button visible. Fixed ratio = no layout shift. */
+  aspect-ratio: 2.4 / 1;
 }
 .bc-track {
   display: flex;
@@ -196,14 +197,18 @@ a {
   position: relative;
   flex: 0 0 100%;
   height: 100%;
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 .bc-slide img {
   display: block;
   width: 100%;
   height: 100%;
-  /* contain = show the WHOLE banner, never crop. Off-ratio images (e.g. image1,
-     2.11) get tiny cream margins that blend into the frame background. */
-  object-fit: contain;
+  /* cover fills the short frame; top-anchored so banner titles (top of each image)
+     stay visible and only the lower edge is trimmed. */
+  object-fit: cover;
+  object-position: center top;
   user-select: none;
 }
 /* Caption overlay — gradient scrim keeps text/button legible over any image. */
@@ -286,6 +291,9 @@ a {
   outline-offset: 2px;
 }
 @media (max-width: 600px) {
+  /* Slightly taller ratio on phones so the short banner isn't a sliver
+     (still > image1's 2.11 → no side cropping). */
+  .bc-viewport { aspect-ratio: 2.2 / 1; }
   .bc-arrow { width: 2.25rem; height: 2.25rem; font-size: 1.3rem; }
   .bc-prev { left: 0.5rem; }
   .bc-next { right: 0.5rem; }
@@ -299,8 +307,8 @@ a {
 .hero {
   /* Contained hero card — aligns with the nav content + page content (same
      left/right edges down the page). No horizontal breakout. */
-  margin: 0 0 2.5rem;
-  padding: 4rem 1.5rem;
+  margin: 0 0 2rem;
+  padding: 2.25rem 1.5rem;
   background: var(--paper);
   border: 1px solid var(--line);
   color: var(--ink);
@@ -425,9 +433,9 @@ body:has(.hero) .search-nav {
   font-size: 0.9rem;
 }
 .hero h1 {
-  font-size: clamp(2rem, 4.4vw, 3rem);
-  line-height: 1.12;
-  margin: 0 0 1rem;
+  font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+  line-height: 1.15;
+  margin: 0 0 0.6rem;
   font-weight: 600;
 }
 /* one emphasised word, italic, in warm marigold */
@@ -436,11 +444,11 @@ body:has(.hero) .search-nav {
   color: var(--marigold-soft);
 }
 .hero-sub {
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--ink-soft);
-  margin: 0 auto 1.75rem;
-  max-width: 40rem;
+  margin: 0 auto 1.25rem;
+  max-width: 38rem;
 }
 .hero-cta {
   display: flex;

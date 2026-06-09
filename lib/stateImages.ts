@@ -12,6 +12,8 @@ const ALIAS: Record<string, string> = {
   uttrakhand: 'uttarakhand',
   'adman-and-nicobar': 'andaman-and-nicobar-islands',
   'j-and-k': 'jammu-and-kashmir',
+  gujrat: 'gujarat',
+  uttarpradesh: 'uttar-pradesh',
 };
 
 let cache: Record<string, string> | null = null;
