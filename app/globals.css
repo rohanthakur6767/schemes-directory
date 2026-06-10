@@ -375,15 +375,7 @@ a {
   border-color: transparent;
 }
 .search-nav {
-  flex: 1;
-  min-width: 8rem;
-  max-width: 22rem;
-}
-/* The home page has a big hero search, so the nav search there is redundant.
-   .hero only exists on the home page → hide the nav search when it's present.
-   (Nav search still shows on every other page = persistent across the site.) */
-body:has(.hero) .search-nav {
-  display: none;
+  width: 100%;
 }
 .search-nav .search-input {
   padding: 0.45rem 0.7rem;
@@ -799,13 +791,14 @@ body:has(.hero) .search-nav {
   width: auto;
 }
 
-/* Nav content (inside .site-header). Width/centering/padding come from .container. */
+/* Nav content (inside .site-header). Width/centering/padding come from .container.
+   Layout: logo (left) · search (fills the middle) · Browse · CTA (right), one line. */
 .site-nav {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1.25rem;
+  gap: 1.25rem;
   padding-block: 0.85rem;
+  position: relative; /* anchor the mobile dropdown panel */
 }
 
 .site-nav a {
@@ -819,9 +812,41 @@ body:has(.hero) .search-nav {
 .nav-link:hover {
   color: var(--ink);
 }
-/* push the CTA to the far right */
+
+/* The search + Browse + CTA group. Search flexes to fill the gap; Browse and the
+   CTA sit at the far right. */
+.nav-items {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.nav-search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.nav-link,
 .nav-cta {
+  flex: 0 0 auto;
+}
+
+/* Hamburger — hidden on desktop, shown on mobile. */
+.nav-toggle {
+  display: none;
   margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ink);
+  padding: 0.25rem 0.5rem;
+}
+.nav-toggle:focus-visible {
+  outline: 2px solid var(--marigold);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 /* Brand: logo mark + Fraunces wordmark, "India" in green. */
@@ -862,6 +887,43 @@ body:has(.hero) .search-nav {
 .nav-cta:hover {
   background: var(--marigold);
   color: #fff;
+}
+
+/* Mobile: logo + hamburger on the top row; search/Browse/CTA drop into a panel. */
+@media (max-width: 48rem) {
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+  .nav-items {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    flex: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 1rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  .nav-items.is-open {
+    display: flex;
+  }
+  .nav-search {
+    flex: none;
+    width: 100%;
+  }
+  .nav-link {
+    padding: 0.35rem 0;
+  }
+  .nav-cta {
+    text-align: center;
+  }
 }
 
 /* ============================ Scheme page ============================ */

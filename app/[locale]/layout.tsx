@@ -3,8 +3,7 @@ import type { ReactNode } from 'react';
 import { Fraunces, Hanken_Grotesk, Hind } from 'next/font/google';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
-import SearchBox from '@/components/SearchBox';
-import Logo from '@/components/Logo';
+import SiteNav from '@/components/SiteNav';
 import '../globals.css';
 
 // Design tokens — typography. Fraunces (display, allows italic), Hanken Grotesk
@@ -52,27 +51,11 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const locale = (await params).locale as Locale;
-  // Wordmark: highlight the last word ("India") in green per the theme spec.
-  const words = SITE_NAME.split(' ');
-  const brandHead = words.slice(0, -1).join(' ');
-  const brandTail = words[words.length - 1];
   return (
     <html lang={locale} className={`${fraunces.variable} ${hanken.variable} ${hind.variable}`}>
       <body>
         <header className="site-header">
-          <nav className="site-nav container">
-            <a className="brand" href={`/${locale}/`}>
-              <Logo />
-              <span className="brand-text">
-                {brandHead} <span className="brand-in">{brandTail}</span>
-              </span>
-            </a>
-            <a className="nav-link" href={`/${locale}/schemes/`}>Browse</a>
-            <div className="nav-search">
-              <SearchBox locale={locale} variant="nav" />
-            </div>
-            <a className="nav-cta" href={`/${locale}/checker/`}>Check eligibility</a>
-          </nav>
+          <SiteNav locale={locale} />
         </header>
         <main className="container">{children}</main>
         {/* §2: site-wide disclaimer + attribution, required from day one. */}
