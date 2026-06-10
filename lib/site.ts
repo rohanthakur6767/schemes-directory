@@ -1,5 +1,5 @@
 // Site identity in one place — swap these when the domain is purchased.
-export const SITE_NAME = 'GovSchemes India';
+export const SITE_NAME = 'India GovSchemes';
 
 // Canonical site URL (www). Drives canonical tags, hreflang, sitemap, robots and
 // JSON-LD. (Was https://schemes-directory.pages.dev before the domain was bought.)
@@ -12,4 +12,4 @@ export const CONTACT_EMAIL = 'govschemes.contact@gmail.com';
 
 // Publisher / operator name (brand). Used for attribution and available for
 // structured data (E-E-A-T — a clearly named publisher helps for YMYL content).
-export const SITE_OPERATOR = 'GovSchemes India';
+export const SITE_OPERATOR = 'India GovSchemes';
