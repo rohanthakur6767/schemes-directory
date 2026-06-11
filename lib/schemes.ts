@@ -4,6 +4,7 @@ import {
   SchemeSchema,
   ApplyStepsSchema,
   FaqsSchema,
+  EMPTY_CONTACTS,
   type SchemeWithProse,
 } from './types.ts';
 import type { Locale } from './i18n.ts';
@@ -19,7 +20,8 @@ import type { Locale } from './i18n.ts';
 const SELECT = `
   select
     s.id, s.slug, s.name, s.level, s.state, s.categories,
-    s.benefit, s.eligibility, s.documents, s.official_url, s.source,
+    s.benefit, s.eligibility, s.documents, s.official_url,
+    s.relevant_links, s.contacts, s.source,
     s.last_verified::text as last_verified,
     t.name as t_name, t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply,
     t.apply_steps, t.faqs
@@ -74,6 +76,8 @@ function parseRow(r: any): SchemeWithProse {
     official_url: r.official_url,
     source: r.source,
     last_verified: r.last_verified,
+    relevant_links: r.relevant_links ?? [],
+    contacts: r.contacts ?? EMPTY_CONTACTS,
   });
   const prose = ProseSchema.parse({
     name: r.t_name,

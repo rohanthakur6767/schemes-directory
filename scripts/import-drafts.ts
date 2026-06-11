@@ -7,7 +7,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { sql } from '../lib/db.ts';
 import { EligibilitySchema, BenefitSchema } from '../lib/types.ts';
-import { nullifyString } from '../lib/parse.ts';
+import { nullifyString, sanitizeLinks, sanitizeContacts } from '../lib/parse.ts';
 import { normalizeCategories } from '../lib/categories.ts';
 
 const db = sql(); // lib/db exports a getter; grab the client once.
@@ -38,19 +38,25 @@ for (const file of files) {
   const level = state !== null ? 'state' : 'central';
   const official_url = nullifyString(d.official_url) ?? `https://www.myscheme.gov.in/schemes/${id}`;
   const categories = normalizeCategories(d.categories).canonical; // controlled vocab (D30)
+  // New optional fields — re-sanitise (and default for older parsed files).
+  const relevantLinks = sanitizeLinks(d.relevant_links ?? []);
+  const contacts = sanitizeContacts(d.contacts ?? {});
   const hasProse = !!d.prose;
 
   await db`
     insert into schemes (id, slug, name, level, state, categories, benefit, eligibility,
-                         documents, official_url, source, source_snapshot_date, llm_notes, last_verified)
+                         documents, official_url, relevant_links, contacts, source,
+                         source_snapshot_date, llm_notes, last_verified)
     values (${id}, ${d.slug}, ${d.name}, ${level}, ${state}, ${categories},
             ${db.json(benefit)}, ${db.json(eligibility)}, ${d.documents}, ${official_url},
+            ${db.json(relevantLinks)}, ${db.json(contacts)},
             ${d.source}, ${d.source_snapshot_date}, ${d.llm_notes ?? null}, null)
     on conflict (id) do update set
       name = excluded.name, level = excluded.level, state = excluded.state,
       categories = ${categories}, benefit = excluded.benefit,
       eligibility = excluded.eligibility, documents = excluded.documents,
-      official_url = excluded.official_url, source = excluded.source,
+      official_url = excluded.official_url, relevant_links = excluded.relevant_links,
+      contacts = excluded.contacts, source = excluded.source,
       source_snapshot_date = excluded.source_snapshot_date, llm_notes = excluded.llm_notes,
       updated_at = now()
   `;

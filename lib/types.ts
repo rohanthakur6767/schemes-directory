@@ -42,6 +42,25 @@ export const BenefitSchema = z.strictObject({
 
 export type Benefit = z.infer<typeof BenefitSchema>;
 
+// Extra labelled links + contact info (optional, scheme-level — same across
+// locales). URL is a plain string here (lenient): a single bad link must never
+// fail SchemeSchema and hide a whole scheme — the page filters to valid https
+// links at render. Data is sanitised upstream (extraction/backfill) regardless.
+export const RelevantLinkSchema = z.strictObject({
+  label: z.string().min(1),
+  url: z.string().min(1),
+});
+export type RelevantLink = z.infer<typeof RelevantLinkSchema>;
+
+export const ContactsSchema = z.strictObject({
+  toll_free: z.array(z.string().min(1)),
+  phones: z.array(z.string().min(1)),
+  emails: z.array(z.string().min(1)),
+});
+export type Contacts = z.infer<typeof ContactsSchema>;
+
+export const EMPTY_CONTACTS: Contacts = { toll_free: [], phones: [], emails: [] };
+
 export const SchemeSchema = z.strictObject({
   id: z.string().min(1),
   slug: z.string().regex(/^[a-z0-9-]+$/),
@@ -55,6 +74,8 @@ export const SchemeSchema = z.strictObject({
   official_url: z.url(),
   source: z.string().min(1),
   last_verified: z.string().nullable(),              // 'YYYY-MM-DD' | null = pending
+  relevant_links: z.array(RelevantLinkSchema).default([]),
+  contacts: ContactsSchema.default(EMPTY_CONTACTS),
 });
 
 export type Scheme = z.infer<typeof SchemeSchema>;

@@ -4,7 +4,14 @@
 // JSON Schema the LLM is constrained to, and the extraction prompt.
 // ---------------------------------------------------------------------------
 import { z } from 'zod';
-import { BenefitSchema, EligibilitySchema, type Eligibility, type Benefit } from './types.ts';
+import {
+  BenefitSchema,
+  EligibilitySchema,
+  type Eligibility,
+  type Benefit,
+  type RelevantLink,
+  type Contacts,
+} from './types.ts';
 import type { JsonSchema } from './llm.ts';
 import { CANONICAL_CATEGORIES } from './categories.ts';
 
@@ -44,9 +51,71 @@ const LlmResult = z.strictObject({
   }),
   documents: z.array(z.string()),
   official_url: z.string().nullable(),
+  relevant_links: z.array(z.strictObject({ label: z.string(), url: z.string() })),
+  contacts: z.strictObject({
+    toll_free: z.array(z.string()),
+    phones: z.array(z.string()),
+    emails: z.array(z.string()),
+  }),
   notes: z.string(), // model's own flags about ambiguity — shown to the reviewer
 });
 export type LlmResult = z.infer<typeof LlmResult>;
+
+// --- Sanitisers for the new contact/link fields (also reused by the backfill) ---
+
+// Coerce to a valid http(s) URL or null (adds https:// if the scheme is missing).
+function validHttpUrl(u: string): string | null {
+  const t = (u || '').trim();
+  if (!t) return null;
+  const withProto = /^https?:\/\//i.test(t) ? t : `https://${t}`;
+  try {
+    const url = new URL(withProto);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+// Keep only real labelled links with valid URLs; dedupe by URL; cap at 6.
+export function sanitizeLinks(raw: { label: string; url: string }[]): RelevantLink[] {
+  const seen = new Set<string>();
+  const out: RelevantLink[] = [];
+  for (const l of raw ?? []) {
+    const url = validHttpUrl(l?.url);
+    const label = (l?.label || '').trim();
+    if (!url || !label || seen.has(url)) continue;
+    seen.add(url);
+    out.push({ label, url });
+    if (out.length >= 6) break;
+  }
+  return out;
+}
+
+// A phone string is valid if it has 7–15 digits (toll-free 1800… or a 10-digit).
+function cleanPhone(s: string): string | null {
+  const t = (s || '').trim();
+  const digits = t.replace(/\D/g, '');
+  if (digits.length < 7 || digits.length > 15) return null;
+  return t.replace(/\s+/g, ' ');
+}
+function cleanEmail(s: string): string | null {
+  const t = (s || '').trim().toLowerCase();
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t) ? t : null;
+}
+
+export function sanitizeContacts(raw: {
+  toll_free?: string[];
+  phones?: string[];
+  emails?: string[];
+}): Contacts {
+  const uniq = (arr: (string | null)[]) =>
+    [...new Set(arr.filter((x): x is string => !!x))].slice(0, 6);
+  return {
+    toll_free: uniq((raw?.toll_free ?? []).map(cleanPhone)),
+    phones: uniq((raw?.phones ?? []).map(cleanPhone)),
+    emails: uniq((raw?.emails ?? []).map(cleanEmail)),
+  };
+}
 
 // Drop nulls / 'any' / empty arrays → our canonical sparse Eligibility (D11).
 export function sparsifyEligibility(e: LlmResult['eligibility']): Eligibility {
@@ -87,6 +156,8 @@ export type ParsedScheme = {
   eligibility: Eligibility;
   documents: string[];
   official_url: string | null;
+  relevant_links: RelevantLink[];
+  contacts: Contacts;
   notes: string;
 };
 
@@ -111,6 +182,8 @@ export function toParsedScheme(raw: unknown): ParsedScheme {
     eligibility: sparsifyEligibility(r.eligibility),
     documents: r.documents,
     official_url: nullifyString(r.official_url),
+    relevant_links: sanitizeLinks(r.relevant_links),
+    contacts: sanitizeContacts(r.contacts),
     notes: r.notes,
   };
 }
@@ -120,7 +193,7 @@ export function toParsedScheme(raw: unknown): ParsedScheme {
 export const EXTRACTION_SCHEMA: JsonSchema = {
   type: 'object',
   additionalProperties: false,
-  required: ['name', 'level', 'state', 'categories', 'benefit', 'eligibility', 'documents', 'official_url', 'notes'],
+  required: ['name', 'level', 'state', 'categories', 'benefit', 'eligibility', 'documents', 'official_url', 'relevant_links', 'contacts', 'notes'],
   properties: {
     name: { type: 'string' },
     level: { type: 'string', enum: ['central', 'state'] },
@@ -154,6 +227,25 @@ export const EXTRACTION_SCHEMA: JsonSchema = {
     },
     documents: { type: 'array', items: { type: 'string' } },
     official_url: { type: ['string', 'null'] },
+    relevant_links: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['label', 'url'],
+        properties: { label: { type: 'string' }, url: { type: 'string' } },
+      },
+    },
+    contacts: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['toll_free', 'phones', 'emails'],
+      properties: {
+        toll_free: { type: 'array', items: { type: 'string' } },
+        phones: { type: 'array', items: { type: 'string' } },
+        emails: { type: 'array', items: { type: 'string' } },
+      },
+    },
     notes: { type: 'string' },
   },
 };
@@ -170,5 +262,7 @@ export const SYSTEM_PROMPT = [
   'categories: choose 1–3 from THIS FIXED LIST only (closest fit) — do not invent new ones:',
   CANONICAL_CATEGORIES.join(', ') + '.',
   'occupation: lowercase single words like farmer, student, artisan, street_vendor, where applicable.',
+  'relevant_links: extra official links the page explicitly gives (e.g. guidelines, online registration, notification PDF), each as {label, url}. Include ONLY real URLs that actually appear in the text — never invent one. [] if none.',
+  'contacts: helpline/contact details stated on the page. toll_free = numbers described as toll-free or helpline (e.g. 1800-xxx, 104, 14555); phones = other phone numbers; emails = email addresses. Copy digits/emails EXACTLY as written; never invent. [] for any list with none.',
   'notes: one sentence on anything ambiguous or that a human reviewer should double-check.',
 ].join('\n');

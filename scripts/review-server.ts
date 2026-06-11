@@ -29,7 +29,8 @@ async function counts() {
 async function nextItem() {
   const [row] = await db`
     select s.id, s.slug, s.name, s.level, s.state, s.categories, s.benefit, s.eligibility,
-           s.documents, s.official_url, s.source, s.source_snapshot_date::text, s.llm_notes,
+           s.documents, s.official_url, s.relevant_links, s.contacts, s.source,
+           s.source_snapshot_date::text, s.llm_notes,
            t.summary, t.eligibility_prose, t.benefits_prose, t.how_to_apply, t.apply_steps, t.faqs
     from schemes s
     join scheme_translations t on t.scheme_id = s.id and t.locale = 'en'

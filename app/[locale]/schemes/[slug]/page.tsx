@@ -69,6 +69,13 @@ export default async function SchemePage({ params }: Props) {
   const pageUrl = `${SITE_URL}/${locale}/schemes/${scheme.slug}/`;
   const b = scheme.benefit;
 
+  // Optional blocks — rendered only when present (like Documents/FAQs).
+  const links = scheme.relevant_links.filter((l) => /^https?:\/\//i.test(l.url));
+  const c = scheme.contacts;
+  const hasContacts = c.toll_free.length + c.phones.length + c.emails.length > 0;
+  const telHref = (s: string) => `tel:${s.replace(/[^\d+]/g, '')}`;
+  const primaryPhone = c.toll_free[0] ?? c.phones[0] ?? null;
+
   // schema.org: GovernmentService + BreadcrumbList (both as rich-result food).
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -84,6 +91,7 @@ export default async function SchemePage({ params }: Props) {
         areaServed: { '@type': 'AdministrativeArea', name: scheme.state ?? 'India' },
         url: scheme.official_url,
         mainEntityOfPage: pageUrl,
+        ...(primaryPhone ? { telephone: primaryPhone } : {}),
       },
       {
         '@type': 'BreadcrumbList',
@@ -190,6 +198,47 @@ export default async function SchemePage({ params }: Props) {
             </section>
           )}
 
+          {links.length > 0 && (
+            <section id="links" className="card">
+              <h2>Relevant links</h2>
+              <ul className="link-list">
+                {links.map((l) => (
+                  <li key={l.url}>
+                    <a href={l.url} target="_blank" rel="noopener noreferrer">
+                      {l.label} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {hasContacts && (
+            <section id="contact" className="card">
+              <h2>Contact information</h2>
+              <ul className="contact-list">
+                {c.toll_free.map((n) => (
+                  <li key={`tf-${n}`}>
+                    <span className="contact-label">Toll-free</span>
+                    <a href={telHref(n)}>{n}</a>
+                  </li>
+                ))}
+                {c.phones.map((n) => (
+                  <li key={`ph-${n}`}>
+                    <span className="contact-label">Phone</span>
+                    <a href={telHref(n)}>{n}</a>
+                  </li>
+                ))}
+                {c.emails.map((e) => (
+                  <li key={`em-${e}`}>
+                    <span className="contact-label">Email</span>
+                    <a href={`mailto:${e}`}>{e}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {scheme.faqs.length > 0 && (
             <section id="faqs" className="card">
               <h2>Frequently asked questions</h2>
@@ -256,6 +305,8 @@ export default async function SchemePage({ params }: Props) {
             <a href="#eligibility">Who can apply</a>
             <a href="#apply">How to apply</a>
             {scheme.documents.length > 0 && <a href="#documents">Documents</a>}
+            {links.length > 0 && <a href="#links">Relevant links</a>}
+            {hasContacts && <a href="#contact">Contact</a>}
             {scheme.faqs.length > 0 && <a href="#faqs">FAQs</a>}
             {glossary.length > 0 && <a href="#terms">Key terms</a>}
           </nav>

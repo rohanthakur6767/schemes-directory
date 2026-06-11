@@ -1035,6 +1035,47 @@ a {
   font-weight: 700;
 }
 
+/* Relevant links + Contact info (scheme page) */
+.link-list,
+.contact-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+.link-list a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.link-list a:hover {
+  text-decoration: underline;
+}
+.contact-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-height: 44px; /* comfortable tap target for tel:/mailto: */
+}
+.contact-label {
+  flex: 0 0 4.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.contact-list a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+.contact-list a:hover {
+  text-decoration: underline;
+}
+
 .cta {
   display: inline-block;
   margin-top: 1rem;

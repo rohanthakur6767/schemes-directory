@@ -62,3 +62,9 @@ update scheme_translations set review_status = 'published'
 -- Deeper per-locale content (D33): numbered application steps + FAQs.
 alter table scheme_translations add column if not exists apply_steps jsonb not null default '[]';
 alter table scheme_translations add column if not exists faqs jsonb not null default '[]';
+-- Extra labelled links + contact info (scheme-level — same across locales).
+-- relevant_links: [{label,url}] · contacts: {toll_free,phones,emails}. Rendered
+-- only when non-empty; sanitised upstream so URLs are always valid http(s).
+alter table schemes add column if not exists relevant_links jsonb not null default '[]';
+alter table schemes add column if not exists contacts jsonb not null
+  default '{"toll_free":[],"phones":[],"emails":[]}';
