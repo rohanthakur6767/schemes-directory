@@ -1363,80 +1363,291 @@ a {
 }
 
 /* Browse / facets */
+/* ===================== Browse: responsive filters ===================== */
 .browse {
   display: grid;
-  grid-template-columns: minmax(0, 16rem) 1fr;
+  grid-template-columns: minmax(0, 17rem) 1fr;
   gap: 2rem;
   align-items: start;
 }
-
-@media (max-width: 48rem) {
-  .browse {
-    grid-template-columns: 1fr;
-  }
+/* < 1024px: single column (sidebar hidden below — see the hide rule after it). */
+@media (max-width: 64rem) {
+  .browse { grid-template-columns: 1fr; }
 }
 
+/* Sidebar (desktop) — sticky with its own scroll below the header. */
 .facets {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  background: var(--card);
-  border: 1px solid var(--border);
+  gap: 0.75rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.25rem;
-  /* Sticky below the header, with its OWN vertical scroll: wheel over the panel
-     scrolls the filters; at the top/bottom edge the page keeps scrolling
-     (default scroll-chaining). */
+  padding: 1rem;
   position: sticky;
   top: calc(var(--header-h) + 1rem);
   max-height: calc(100vh - var(--header-h) - 2rem);
   overflow-y: auto;
 }
-@media (max-width: 48rem) {
-  /* On mobile the sidebar stacks above results — no independent scroll. */
-  .facets { position: static; max-height: none; overflow: visible; }
+/* Hide the sidebar below 1024px — the Filters button + bottom-sheet replace it.
+   (Placed AFTER the base .facets rule so this override actually wins.) */
+@media (max-width: 64rem) {
+  .facets { display: none; }
 }
 
-.facets fieldset {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+/* Accordion section — shared by sidebar + bottom-sheet. */
+.facet-group {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  /* Don't let the flex column shrink groups to fit max-height — that, combined
+     with overflow:hidden above, would clip the lists and hide the sidebar's own
+     scroll. Keeping natural height makes .facets / .sheet-body scroll instead. */
+  flex: 0 0 auto;
 }
-
-.facets legend {
-  font-weight: 700;
-  padding: 0 0.4rem;
-}
-
-.facets label {
+.facet-head {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.facets label.disabled {
-  color: #aaa;
-}
-
-.facets .count {
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.facets .clear {
-  align-self: flex-start;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper);
+  border: none;
   cursor: pointer;
   font: inherit;
-  color: var(--accent);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
 }
+.facet-head:hover { background: var(--tint-green); }
+.facet-head:focus-visible { outline: 2px solid var(--marigold); outline-offset: -2px; }
+.facet-title { flex: 1 1 auto; }
+.facet-badge {
+  flex: 0 0 auto;
+  background: var(--marigold);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.facet-caret { flex: 0 0 auto; color: var(--ink-soft); font-size: 0.8rem; }
+.facet-body {
+  padding: 0.5rem 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.facet-search {
+  width: 100%;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.facet-search:focus-visible {
+  outline: none;
+  border-color: var(--marigold);
+  box-shadow: 0 0 0 3px rgba(226, 87, 30, 0.2);
+}
+.facet-list { display: flex; flex-direction: column; }
+/* Cap the long state list inside the DESKTOP sidebar only (sheet body scrolls). */
+.facets .facet-list--state { max-height: 280px; overflow-y: auto; }
+.facet-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px; /* comfortable + meets mobile touch target */
+  padding: 0.1rem 0.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.facet-opt input {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 auto;
+  accent-color: var(--green);
+}
+.facet-opt-label { flex: 1 1 auto; }
+.facet-opt .count { flex: 0 0 auto; color: var(--ink-soft); font-size: 0.8rem; }
+.facet-opt.disabled { color: var(--ink-soft); opacity: 0.5; cursor: default; }
+.facet-empty { color: var(--ink-soft); font-size: 0.85rem; margin: 0.2rem 0; }
+
+/* Mobile "Filters" trigger — hidden on desktop, sticky on mobile. */
+.filters-trigger { display: none; }
+@media (max-width: 64rem) {
+  .filters-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    position: sticky;
+    top: calc(var(--header-h) + 0.5rem);
+    z-index: 20;
+    min-height: 44px;
+    padding: 0.5rem 1.1rem;
+    margin-bottom: 0.85rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+}
+.ft-badge {
+  background: var(--marigold);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0 0.45rem;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Active-filter chips (all viewports) */
+.active-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--tint-green);
+  color: var(--forest);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25rem 0.3rem 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--forest);
+  font-size: 0.85rem;
+  line-height: 1;
+  border-radius: 999px;
+}
+.chip-x:hover { background: rgba(28, 22, 15, 0.1); }
+.chip-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--marigold);
+  padding: 0.3rem 0.5rem;
+}
+@media (max-width: 64rem) {
+  /* ≥44px tap target for chip removal on touch screens. */
+  .chip { padding: 0.15rem 0.3rem 0.15rem 0.9rem; font-size: 0.9rem; }
+  .chip-x { width: 2.75rem; height: 2.75rem; font-size: 1rem; }
+}
+
+/* Bottom-sheet (mobile). position:fixed is correct in the real app. */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(28, 22, 15, 0.5);
+  display: flex;
+  align-items: flex-end;
+}
+.sheet {
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 30px rgba(28, 22, 15, 0.25);
+  animation: sheet-up 0.25s ease;
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.sheet-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  flex: 1 1 auto;
+}
+.sheet-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: var(--marigold);
+  padding: 0.3rem 0.5rem;
+}
+.sheet-close {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: var(--ink);
+  border-radius: 8px;
+}
+.sheet-close:hover { background: var(--tint-amber); }
+.sheet-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.sheet-apply {
+  flex: 0 0 auto;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  min-height: 52px;
+  padding: 1rem;
+  background: var(--marigold);
+  color: #fff;
+}
+.sheet-apply:hover { filter: brightness(0.93); }
 
 .result-count {
   font-weight: 600;
