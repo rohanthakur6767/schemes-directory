@@ -5,6 +5,7 @@ import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
 import { iconFor } from '@/lib/categoryIcons';
 import { stateImage } from '@/lib/stateImages';
+import { categoryImage } from '@/lib/categoryImages';
 import SearchBox from '@/components/SearchBox';
 import FeaturedMarquee from '@/components/FeaturedMarquee';
 import BannerCarousel from '@/components/BannerCarousel';
@@ -131,15 +132,31 @@ export default async function HomePage({
       <section className="home-section">
         <h2>Browse by category</h2>
         <div className="cat-grid">
-          {categories.map((h) => (
-            <Link key={h.slug} className="cat-card" href={`/${locale}/category/${h.slug}/`}>
-              <span className="cat-card-icon" aria-hidden>{iconFor(h.label)}</span>
-              <span className="cat-card-name">{h.label}</span>
-              <span className="cat-card-count">
-                {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
-              </span>
-            </Link>
-          ))}
+          {categories.map((h) => {
+            const catImg = categoryImage(h.label);
+            return (
+              <Link key={h.slug} className="cat-card" href={`/${locale}/category/${h.slug}/`}>
+                {catImg ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="cat-card-img"
+                    src={catImg}
+                    alt=""
+                    width={52}
+                    height={52}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span className="cat-card-icon" aria-hidden>{iconFor(h.label)}</span>
+                )}
+                <span className="cat-card-name">{h.label}</span>
+                <span className="cat-card-count">
+                  {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
     </>

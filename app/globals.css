@@ -655,6 +655,13 @@ a {
   font-size: 1.9rem;
   line-height: 1;
 }
+.cat-card-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+}
 .cat-card-name,
 .place-name {
   font-family: var(--display);
