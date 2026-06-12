@@ -13,7 +13,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   return (
     <article className="content-page">
       <h1>Privacy Policy</h1>
-      <p className="muted-note">Last updated: 7 June 2026</p>
+      <p className="muted-note">Last updated: 12 June 2026</p>
 
       <p>
         This policy explains what information {SITE_NAME} (“we”, “us”) handles when
@@ -79,8 +79,10 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
 
       <h2>Analytics</h2>
       <p>
-        We do not currently use analytics cookies that identify you personally. If we
-        add analytics in future, we will update this policy.
+        We use <strong>Cloudflare Web Analytics</strong> to understand overall traffic,
+        such as total page views and broad location. It is privacy-friendly: it uses{' '}
+        <strong>no cookies</strong>, does not fingerprint your device, and does not
+        personally identify you — the data we see is aggregate only.
       </p>
 
       <h2>Data handling and your choices</h2>
