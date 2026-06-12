@@ -54,6 +54,13 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${fraunces.variable} ${hanken.variable} ${hind.variable}`}>
       <body>
+        {/* Google AdSense — async script; React 19 hoists it into <head> on every
+            page (verification + ad serving). Publisher ca-pub-8300216892614030. */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8300216892614030"
+          crossOrigin="anonymous"
+        />
         <header className="site-header">
           <SiteNav locale={locale} />
         </header>
