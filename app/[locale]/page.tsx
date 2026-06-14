@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import type { Locale } from '@/lib/i18n';
+import { LOCALES, type Locale } from '@/lib/i18n';
 import { getPublishedSchemes } from '@/lib/schemes';
 import { deriveCategoryHubs, deriveStateHubs } from '@/lib/hubs';
 import { iconFor } from '@/lib/categoryIcons';
 import { stateImage } from '@/lib/stateImages';
 import { categoryImage } from '@/lib/categoryImages';
+import { t, schemeCount, type MessageKey } from '@/lib/messages';
 import SearchBox from '@/components/SearchBox';
 import FeaturedMarquee from '@/components/FeaturedMarquee';
 import BannerCarousel from '@/components/BannerCarousel';
@@ -16,17 +17,31 @@ const initials = (s: string) => {
   return (words.length > 1 ? words[0][0] + words[1][0] : s.slice(0, 2)).toUpperCase();
 };
 
-// Self-referencing canonical + og:url for the home page (resolved against
+// Locale-aware canonical + hreflang + og:url for the home page (resolved against
 // metadataBase = https://www.indiagovschemes.com in the layout).
-export const metadata: Metadata = {
-  alternates: { canonical: '/en/' },
-  openGraph: { url: '/en/' },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const path = (l: string) => `/${l}/`;
+  return {
+    alternates: {
+      canonical: path(locale),
+      languages: {
+        ...Object.fromEntries(LOCALES.map((l) => [l, path(l)])),
+        'x-default': path('en'),
+      },
+    },
+    openGraph: { url: path(locale) },
+  };
+}
 
-const STEPS = [
-  { icon: '🔎', title: 'Find your scheme', text: 'Browse by category, state, or who it’s for — across central and state government.' },
-  { icon: '✅', title: 'Check your eligibility', text: 'Answer a few quick questions and see the schemes you likely qualify for. Private — answers never leave your browser.' },
-  { icon: '🔗', title: 'Apply on the official site', text: 'We link you straight to the government’s own portal. Always free, no middlemen.' },
+const STEPS: { icon: string; titleKey: MessageKey; textKey: MessageKey }[] = [
+  { icon: '🔎', titleKey: 'home.step.find.title', textKey: 'home.step.find.text' },
+  { icon: '✅', titleKey: 'home.step.check.title', textKey: 'home.step.check.text' },
+  { icon: '🔗', titleKey: 'home.step.apply.title', textKey: 'home.step.apply.text' },
 ];
 
 export default async function HomePage({
@@ -48,20 +63,17 @@ export default async function HomePage({
       <section className="hero">
         <div className="hero-bg" aria-hidden />
         <div className="hero-inner">
-          <h1>Find government schemes made for you</h1>
-          <p className="hero-sub">
-            Search {schemes.length}+ central and state schemes — see what you can get,
-            who can apply, and how. Free, and your details never leave your phone.
-          </p>
+          <h1>{t(locale, 'home.heroH1')}</h1>
+          <p className="hero-sub">{t(locale, 'home.heroSub', { count: schemes.length })}</p>
           <div className="hero-search">
             <SearchBox locale={locale} variant="hero" />
           </div>
           <div className="hero-cta">
             <Link className="btn btn-primary" href={`/${locale}/checker/`}>
-              Check what you qualify for →
+              {t(locale, 'home.ctaCheck')}
             </Link>
             <Link className="btn btn-ghost" href={`/${locale}/schemes/`}>
-              Browse all schemes
+              {t(locale, 'home.ctaBrowse')}
             </Link>
           </div>
         </div>
@@ -70,9 +82,9 @@ export default async function HomePage({
       {central.length > 0 && (
         <section className="home-section featured">
           <div className="section-head">
-            <h2>Popular central schemes</h2>
+            <h2>{t(locale, 'home.popularCentral')}</h2>
             <Link className="see-all" href={`/${locale}/schemes/`}>
-              View all schemes →
+              {t(locale, 'home.viewAll')}
             </Link>
           </div>
           <FeaturedMarquee schemes={central} locale={locale} />
@@ -80,14 +92,14 @@ export default async function HomePage({
       )}
 
       <section className="how">
-        <h2>How it works</h2>
+        <h2>{t(locale, 'home.howItWorks')}</h2>
         <ol className="how-steps">
           {STEPS.map((s, i) => (
-            <li key={s.title}>
+            <li key={s.titleKey}>
               <span className="how-icon" aria-hidden>{s.icon}</span>
-              <span className="how-step-no">Step {i + 1}</span>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
+              <span className="how-step-no">{t(locale, 'home.stepNo', { n: i + 1 })}</span>
+              <h3>{t(locale, s.titleKey)}</h3>
+              <p>{t(locale, s.textKey)}</p>
             </li>
           ))}
         </ol>
@@ -95,7 +107,7 @@ export default async function HomePage({
 
       {states.length > 0 && (
         <section className="home-section">
-          <h2>Browse by state</h2>
+          <h2>{t(locale, 'home.browseByState')}</h2>
           <div className="place-grid">
             {states.map((h) => {
               const img = stateImage(h.label);
@@ -118,9 +130,7 @@ export default async function HomePage({
                     </span>
                   )}
                   <span className="place-name">{h.label}</span>
-                  <span className="place-count">
-                    {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
-                  </span>
+                  <span className="place-count">{schemeCount(locale, h.schemes.length)}</span>
                   <span className="place-arrow" aria-hidden>→</span>
                 </Link>
               );
@@ -130,7 +140,7 @@ export default async function HomePage({
       )}
 
       <section className="home-section">
-        <h2>Browse by category</h2>
+        <h2>{t(locale, 'home.browseByCategory')}</h2>
         <div className="cat-grid">
           {categories.map((h) => {
             const catImg = categoryImage(h.label);
@@ -151,9 +161,7 @@ export default async function HomePage({
                   <span className="cat-card-icon" aria-hidden>{iconFor(h.label)}</span>
                 )}
                 <span className="cat-card-name">{h.label}</span>
-                <span className="cat-card-count">
-                  {h.schemes.length} scheme{h.schemes.length === 1 ? '' : 's'}
-                </span>
+                <span className="cat-card-count">{schemeCount(locale, h.schemes.length)}</span>
               </Link>
             );
           })}

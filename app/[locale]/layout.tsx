@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Fraunces, Hanken_Grotesk, Hind } from 'next/font/google';
 import { LOCALES, type Locale } from '@/lib/i18n';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { t } from '@/lib/messages';
 import SiteNav from '@/components/SiteNav';
 import '../globals.css';
 
@@ -21,22 +22,28 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export const metadata: Metadata = {
-  // Base for all relative canonical/hreflang URLs in generateMetadata calls.
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} — Indian Government Schemes Directory`,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description:
-    'Find central and state government schemes in India you may be eligible for. ' +
-    'Original, verified summaries with links to official sources.',
-  openGraph: {
-    siteName: SITE_NAME,
-    type: 'website',
-    locale: 'en_IN',
-  },
-};
+// Locale-aware site metadata (title template + description per language).
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    // Base for all relative canonical/hreflang URLs in generateMetadata calls.
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: t(locale, 'meta.homeTitle', { site: SITE_NAME }),
+      template: t(locale, 'meta.titleTemplate', { site: SITE_NAME }),
+    },
+    description: t(locale, 'meta.description'),
+    openGraph: {
+      siteName: SITE_NAME,
+      type: 'website',
+      locale: locale === 'hi' ? 'hi_IN' : 'en_IN',
+    },
+  };
+}
 
 // This IS the root layout — it lives inside [locale] (standard i18n pattern)
 // so <html lang> is correct per locale. There is deliberately no app/layout.tsx.
@@ -69,25 +76,17 @@ export default async function RootLayout({
         <footer className="site-footer">
           <div className="footer-inner container">
             <nav className="footer-links">
-              <a href={`/${locale}/about/`}>About</a>
-              <a href={`/${locale}/privacy/`}>Privacy Policy</a>
-              <a href={`/${locale}/disclaimer/`}>Disclaimer</a>
-              <a href={`/${locale}/contact/`}>Contact</a>
+              <a href={`/${locale}/about/`}>{t(locale, 'footer.about')}</a>
+              <a href={`/${locale}/privacy/`}>{t(locale, 'footer.privacy')}</a>
+              <a href={`/${locale}/disclaimer/`}>{t(locale, 'footer.disclaimer')}</a>
+              <a href={`/${locale}/contact/`}>{t(locale, 'footer.contact')}</a>
             </nav>
-            <p>
-              {SITE_NAME} is an independent informational website. We are not
-              affiliated with, or endorsed by, the Government of India or any
-              state government. Scheme details can change — always verify on the
-              official source linked on each page before applying.
-            </p>
-            <p>
-              Data compiled from official government sources (Open Government
-              Data licence — GODL-India), rewritten and verified by us.
-            </p>
+            <p>{t(locale, 'footer.independence', { site: SITE_NAME })}</p>
+            <p>{t(locale, 'footer.dataSource')}</p>
             {/* Outbound links to official portals — framed as references, NOT
                 partners/endorsers, to stay consistent with the disclaimer above. */}
             <div className="footer-portals">
-              <span className="footer-portals-label">Official government portals</span>
+              <span className="footer-portals-label">{t(locale, 'footer.officialPortals')}</span>
               <div className="footer-portal-list">
                 <a
                   className="footer-portal"

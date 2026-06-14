@@ -14,6 +14,7 @@
 // ---------------------------------------------------------------------------
 import type { Eligibility, Benefit } from './types.ts';
 import { formatINR, humanizeFlag } from './format.ts';
+import { t } from './messages.ts';
 
 // One row of the build-time index (public/index/<locale>/schemes.json).
 // Matchable fields + what we need to render a result card. NO prose.
@@ -49,7 +50,7 @@ export type Match = {
 
 // ---------------------------------------------------------------------------
 
-export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
+export function matchScheme(profile: Profile, s: SchemeIndexEntry, locale = 'en'): Match {
   const e = s.eligibility;
   const reasons: string[] = [];
   const toConfirm: string[] = [];
@@ -75,14 +76,14 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
       ? `${e.age_min}–${e.age_max}`
       : e.age_min !== undefined
         ? `${e.age_min}+`
-        : `up to ${e.age_max}`;
+        : t(locale, 'match.age.upTo', { max: e.age_max ?? 0 });
   judge(
     e.age_min !== undefined || e.age_max !== undefined,
     profile.age !== undefined,
     (e.age_min === undefined || profile.age! >= e.age_min) &&
       (e.age_max === undefined || profile.age! <= e.age_max),
-    `Your age fits the ${ageText} range`,
-    `Age must be ${ageText}`,
+    t(locale, 'match.age.pass', { range: ageText }),
+    t(locale, 'match.age.confirm', { range: ageText }),
   );
 
   // income (household, annual)
@@ -90,8 +91,8 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
     e.income_max !== undefined,
     profile.income !== undefined,
     profile.income! <= (e.income_max ?? Infinity),
-    `Household income within ${formatINR(e.income_max ?? 0)}/year`,
-    `Household income must be ≤ ${formatINR(e.income_max ?? 0)}/year`,
+    t(locale, 'match.income.pass', { amount: formatINR(e.income_max ?? 0) }),
+    t(locale, 'match.income.confirm', { amount: formatINR(e.income_max ?? 0) }),
   );
 
   // gender
@@ -99,8 +100,8 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
     e.gender !== undefined,
     profile.gender !== undefined,
     profile.gender === e.gender,
-    e.gender === 'female' ? 'For women / girls' : 'For men',
-    e.gender === 'female' ? 'Applicant must be a woman / girl' : 'Applicant must be male',
+    t(locale, e.gender === 'female' ? 'match.gender.passFemale' : 'match.gender.passMale'),
+    t(locale, e.gender === 'female' ? 'match.gender.confirmFemale' : 'match.gender.confirmMale'),
   );
 
   // occupation — scheme lists acceptable roles (ANY-of)
@@ -108,8 +109,8 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
     e.occupation !== undefined,
     !!profile.occupation && profile.occupation.length > 0,
     !!profile.occupation && profile.occupation.some((o) => e.occupation?.includes(o) ?? false),
-    `Matches your occupation`,
-    `For: ${(e.occupation ?? []).map(humanizeFlag).join(', ')}`,
+    t(locale, 'match.occupation.pass'),
+    t(locale, 'facts.for', { list: (e.occupation ?? []).map(humanizeFlag).join(', ') }),
   );
 
   // caste / social category (ANY-of)
@@ -117,8 +118,8 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
     e.caste !== undefined,
     profile.caste !== undefined,
     !!profile.caste && (e.caste?.includes(profile.caste) ?? false),
-    `Open to your category (${profile.caste})`,
-    `Category must be one of: ${(e.caste ?? []).join(', ')}`,
+    t(locale, 'match.caste.pass', { caste: profile.caste ?? '' }),
+    t(locale, 'match.caste.confirm', { list: (e.caste ?? []).join(', ') }),
   );
 
   // residence state (ANY-of)
@@ -126,14 +127,14 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
     e.residence_state !== undefined,
     profile.state !== undefined,
     !!profile.state && (e.residence_state?.includes(profile.state) ?? false),
-    `You live in an eligible state`,
-    `Must reside in ${(e.residence_state ?? []).join(' / ')}`,
+    t(locale, 'match.state.pass'),
+    t(locale, 'match.state.confirm', { list: (e.residence_state ?? []).join(' / ') }),
   );
 
   // other_flags — boolean conditions we deliberately don't ask (D11). ALWAYS
   // surfaced as things to confirm, never as a pass/fail.
   for (const flag of e.other_flags ?? []) {
-    toConfirm.push(`Also requires: ${humanizeFlag(flag)}`);
+    toConfirm.push(t(locale, 'match.alsoRequires', { flag: humanizeFlag(flag) }));
   }
 
   const verdict: Verdict = failed
@@ -148,9 +149,9 @@ export function matchScheme(profile: Profile, s: SchemeIndexEntry): Match {
 // Rank: confirmed-eligible above maybes; within each, larger headline benefit
 // first (a crude but sensible "most valuable to you" proxy — D16). Amount=null
 // sorts last because we can't rank what we can't quantify.
-export function matchAll(profile: Profile, entries: SchemeIndexEntry[]): Match[] {
+export function matchAll(profile: Profile, entries: SchemeIndexEntry[], locale = 'en'): Match[] {
   return entries
-    .map((e) => matchScheme(profile, e))
+    .map((e) => matchScheme(profile, e, locale))
     .filter((m) => m.verdict !== 'ineligible')
     .sort((a, b) => {
       if (a.verdict !== b.verdict) return a.verdict === 'eligible' ? -1 : 1;

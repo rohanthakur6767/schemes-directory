@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Logo from './Logo';
 import SearchBox from './SearchBox';
 import { SITE_NAME } from '@/lib/site';
+import { t } from '@/lib/messages';
 
 // Top navigation. Desktop: logo · search (fills the middle) · Browse · CTA on
 // one line. Mobile: logo + hamburger; search/Browse/CTA collapse into a panel.
@@ -27,7 +28,7 @@ export default function SiteNav({ locale }: { locale: string }) {
       <button
         type="button"
         className="nav-toggle"
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-label={t(locale, open ? 'nav.closeMenu' : 'nav.openMenu')}
         aria-expanded={open}
         aria-controls="nav-items"
         onClick={() => setOpen((v) => !v)}
@@ -40,10 +41,10 @@ export default function SiteNav({ locale }: { locale: string }) {
           <SearchBox locale={locale} variant="nav" />
         </div>
         <a className="nav-link" href={`/${locale}/schemes/`} onClick={close}>
-          Browse
+          {t(locale, 'nav.browse')}
         </a>
         <a className="nav-cta" href={`/${locale}/checker/`} onClick={close}>
-          Check eligibility
+          {t(locale, 'nav.checkEligibility')}
         </a>
       </div>
     </nav>

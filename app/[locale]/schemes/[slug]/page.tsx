@@ -8,11 +8,22 @@ import { eligibilityFacts, formatINR } from '@/lib/format';
 import { slugify } from '@/lib/hubs';
 import { findGlossaryTerms } from '@/lib/glossary';
 import { iconFor } from '@/lib/categoryIcons';
+import { t, type MessageKey } from '@/lib/messages';
 
-const FREQ_LABEL: Record<string, string> = {
-  one_time: 'one-time',
-  monthly: 'per month',
-  yearly: 'per year',
+const FREQ_KEY: Record<string, MessageKey> = {
+  one_time: 'scheme.freq.oneTime',
+  monthly: 'scheme.freq.monthly',
+  yearly: 'scheme.freq.yearly',
+};
+const BTYPE_KEY: Record<string, MessageKey> = {
+  cash: 'benefit.type.cash',
+  pension: 'benefit.type.pension',
+  insurance: 'benefit.type.insurance',
+  loan: 'benefit.type.loan',
+  subsidy: 'benefit.type.subsidy',
+  savings: 'benefit.type.savings',
+  scholarship: 'benefit.type.scholarship',
+  service: 'benefit.type.service',
 };
 
 export const dynamicParams = false;
@@ -60,7 +71,7 @@ export default async function SchemePage({ params }: Props) {
   const scheme = await getPublishedScheme(locale as Locale, slug);
   if (!scheme) notFound();
 
-  const facts = eligibilityFacts(scheme.eligibility);
+  const facts = eligibilityFacts(scheme.eligibility, locale);
   const primaryCategory = scheme.categories[0];
   // Definitions for any jargon that appears in this scheme's prose (D31).
   const glossary = findGlossaryTerms(
@@ -96,7 +107,7 @@ export default async function SchemePage({ params }: Props) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/${locale}/` },
+          { '@type': 'ListItem', position: 1, name: t(locale, 'common.home'), item: `${SITE_URL}/${locale}/` },
           ...(primaryCategory
             ? [{
                 '@type': 'ListItem', position: 2, name: primaryCategory,
@@ -122,8 +133,8 @@ export default async function SchemePage({ params }: Props) {
 
   return (
     <article className="scheme">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href={`/${locale}/`}>Home</Link>
+      <nav className="breadcrumbs" aria-label={t(locale, 'scheme.breadcrumb')}>
+        <Link href={`/${locale}/`}>{t(locale, 'common.home')}</Link>
         <span aria-hidden>›</span>
         {primaryCategory && (
           <>
@@ -137,7 +148,7 @@ export default async function SchemePage({ params }: Props) {
       <header className="scheme-hero">
         <div className="badges">
           {scheme.level === 'central' ? (
-            <span className="badge badge-level">Central scheme</span>
+            <span className="badge badge-level">{t(locale, 'scheme.centralScheme')}</span>
           ) : (
             <Link className="badge badge-level" href={`/${locale}/state/${slugify(scheme.state!)}/`}>
               {scheme.state}
@@ -156,12 +167,12 @@ export default async function SchemePage({ params }: Props) {
       <div className="scheme-grid">
         <main className="scheme-main">
           <section id="benefits" className="card">
-            <h2>Benefits</h2>
+            <h2>{t(locale, 'scheme.benefits')}</h2>
             <p>{scheme.prose.benefits_prose}</p>
           </section>
 
           <section id="eligibility" className="card">
-            <h2>Who can apply</h2>
+            <h2>{t(locale, 'scheme.whoCanApply')}</h2>
             {/* Chips render the SAME structured data the checker matches on —
                 page and checker cannot disagree, by construction. */}
             <ul className="chips">
@@ -173,7 +184,7 @@ export default async function SchemePage({ params }: Props) {
           </section>
 
           <section id="apply" className="card">
-            <h2>How to apply</h2>
+            <h2>{t(locale, 'scheme.howToApply')}</h2>
             <p>{scheme.prose.how_to_apply}</p>
             {scheme.apply_steps.length > 0 && (
               <ol className="steps">
@@ -183,13 +194,13 @@ export default async function SchemePage({ params }: Props) {
               </ol>
             )}
             <a className="cta" href={scheme.official_url} target="_blank" rel="noopener noreferrer">
-              Apply on the official website ↗
+              {t(locale, 'scheme.applyOfficial')}
             </a>
           </section>
 
           {scheme.documents.length > 0 && (
             <section id="documents" className="card">
-              <h2>Documents required</h2>
+              <h2>{t(locale, 'scheme.documentsRequired')}</h2>
               <ul className="doc-list">
                 {scheme.documents.map((d) => (
                   <li key={d}>{d}</li>
@@ -200,7 +211,7 @@ export default async function SchemePage({ params }: Props) {
 
           {links.length > 0 && (
             <section id="links" className="card">
-              <h2>Relevant links</h2>
+              <h2>{t(locale, 'scheme.relevantLinks')}</h2>
               <ul className="link-list">
                 {links.map((l) => (
                   <li key={l.url}>
@@ -215,23 +226,23 @@ export default async function SchemePage({ params }: Props) {
 
           {hasContacts && (
             <section id="contact" className="card">
-              <h2>Contact information</h2>
+              <h2>{t(locale, 'scheme.contactInfo')}</h2>
               <ul className="contact-list">
                 {c.toll_free.map((n) => (
                   <li key={`tf-${n}`}>
-                    <span className="contact-label">Toll-free</span>
+                    <span className="contact-label">{t(locale, 'scheme.tollFree')}</span>
                     <a href={telHref(n)}>{n}</a>
                   </li>
                 ))}
                 {c.phones.map((n) => (
                   <li key={`ph-${n}`}>
-                    <span className="contact-label">Phone</span>
+                    <span className="contact-label">{t(locale, 'scheme.phone')}</span>
                     <a href={telHref(n)}>{n}</a>
                   </li>
                 ))}
                 {c.emails.map((e) => (
                   <li key={`em-${e}`}>
-                    <span className="contact-label">Email</span>
+                    <span className="contact-label">{t(locale, 'scheme.email')}</span>
                     <a href={`mailto:${e}`}>{e}</a>
                   </li>
                 ))}
@@ -241,7 +252,7 @@ export default async function SchemePage({ params }: Props) {
 
           {scheme.faqs.length > 0 && (
             <section id="faqs" className="card">
-              <h2>Frequently asked questions</h2>
+              <h2>{t(locale, 'scheme.faqsTitle')}</h2>
               <div className="faqs">
                 {scheme.faqs.map((f, i) => (
                   <details key={i}>
@@ -255,7 +266,7 @@ export default async function SchemePage({ params }: Props) {
 
           {glossary.length > 0 && (
             <section id="terms" className="card">
-              <h2>Key terms explained</h2>
+              <h2>{t(locale, 'scheme.keyTerms')}</h2>
               <dl className="glossary">
                 {glossary.map((g) => (
                   <div key={g.term}>
@@ -269,10 +280,10 @@ export default async function SchemePage({ params }: Props) {
 
           {/* PLAN §2: attribution + verification status on every page. */}
           <p className="attribution">
-            Source: {scheme.source}.{' '}
+            {t(locale, 'scheme.source', { source: scheme.source })}{' '}
             {scheme.last_verified
-              ? `Facts last verified on ${scheme.last_verified}.`
-              : 'Facts are being re-verified against the official source — please confirm details there before applying.'}
+              ? t(locale, 'scheme.lastVerified', { date: scheme.last_verified })
+              : t(locale, 'scheme.reverifying')}
           </p>
         </main>
 
@@ -281,34 +292,34 @@ export default async function SchemePage({ params }: Props) {
             {b.amount !== null ? (
               <div className="benefit-amount">
                 {formatINR(b.amount)}
-                {b.frequency && <span>{FREQ_LABEL[b.frequency]}</span>}
+                {b.frequency && <span>{t(locale, FREQ_KEY[b.frequency])}</span>}
               </div>
             ) : (
-              <div className="benefit-amount benefit-amount-text">{b.note ?? b.type}</div>
+              <div className="benefit-amount benefit-amount-text">{b.note ?? t(locale, BTYPE_KEY[b.type])}</div>
             )}
             <dl className="facts-dl">
-              <dt>Level</dt>
-              <dd>{scheme.level === 'central' ? 'Central (all-India)' : scheme.state}</dd>
-              <dt>Category</dt>
+              <dt>{t(locale, 'scheme.level')}</dt>
+              <dd>{scheme.level === 'central' ? t(locale, 'scheme.centralAllIndia') : scheme.state}</dd>
+              <dt>{t(locale, 'scheme.category')}</dt>
               <dd>{scheme.categories.join(', ')}</dd>
-              <dt>Benefit type</dt>
-              <dd className="cap">{b.type}</dd>
+              <dt>{t(locale, 'scheme.benefitType')}</dt>
+              <dd className="cap">{t(locale, BTYPE_KEY[b.type])}</dd>
             </dl>
             <a className="cta cta-block" href={scheme.official_url} target="_blank" rel="noopener noreferrer">
-              Visit official website ↗
+              {t(locale, 'scheme.visitOfficial')}
             </a>
           </div>
 
-          <nav className="toc" aria-label="On this page">
-            <p className="toc-title">On this page</p>
-            <a href="#benefits">Benefits</a>
-            <a href="#eligibility">Who can apply</a>
-            <a href="#apply">How to apply</a>
-            {scheme.documents.length > 0 && <a href="#documents">Documents</a>}
-            {links.length > 0 && <a href="#links">Relevant links</a>}
-            {hasContacts && <a href="#contact">Contact</a>}
-            {scheme.faqs.length > 0 && <a href="#faqs">FAQs</a>}
-            {glossary.length > 0 && <a href="#terms">Key terms</a>}
+          <nav className="toc" aria-label={t(locale, 'scheme.onThisPage')}>
+            <p className="toc-title">{t(locale, 'scheme.onThisPage')}</p>
+            <a href="#benefits">{t(locale, 'scheme.benefits')}</a>
+            <a href="#eligibility">{t(locale, 'scheme.whoCanApply')}</a>
+            <a href="#apply">{t(locale, 'scheme.howToApply')}</a>
+            {scheme.documents.length > 0 && <a href="#documents">{t(locale, 'scheme.toc.documents')}</a>}
+            {links.length > 0 && <a href="#links">{t(locale, 'scheme.relevantLinks')}</a>}
+            {hasContacts && <a href="#contact">{t(locale, 'scheme.toc.contact')}</a>}
+            {scheme.faqs.length > 0 && <a href="#faqs">{t(locale, 'scheme.toc.faqs')}</a>}
+            {glossary.length > 0 && <a href="#terms">{t(locale, 'scheme.toc.keyTerms')}</a>}
           </nav>
         </aside>
       </div>

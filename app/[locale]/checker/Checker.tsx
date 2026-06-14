@@ -9,6 +9,7 @@ import {
   type SchemeIndexEntry,
 } from '@/lib/matcher';
 import { humanizeFlag } from '@/lib/format';
+import { t, type MessageKey } from '@/lib/messages';
 
 // Guided, one-question-per-step eligibility wizard. Reuses the pure, tested
 // matcher (lib/matcher.ts) — this file is ONLY the flow/UX. Everything runs in
@@ -16,13 +17,13 @@ import { humanizeFlag } from '@/lib/format';
 const STEPS = ['age', 'gender', 'state', 'income', 'caste', 'occupation'] as const;
 type StepId = (typeof STEPS)[number];
 
-const QUESTION: Record<StepId, string> = {
-  age: 'How old are you?',
-  gender: 'What is your gender?',
-  state: 'Which state do you live in?',
-  income: 'Your family’s total yearly income?',
-  caste: 'Your social category?',
-  occupation: 'Which of these describe you?',
+const QUESTION_KEY: Record<StepId, MessageKey> = {
+  age: 'checker.q.age',
+  gender: 'checker.q.gender',
+  state: 'checker.q.state',
+  income: 'checker.q.income',
+  caste: 'checker.q.caste',
+  occupation: 'checker.q.occupation',
 };
 
 export default function Checker({ locale }: { locale: string }) {
@@ -39,9 +40,12 @@ export default function Checker({ locale }: { locale: string }) {
 
   const occupations = useMemo(() => (entries ? deriveOccupations(entries) : []), [entries]);
   const states = useMemo(() => (entries ? deriveStates(entries) : []), [entries]);
-  const matches = useMemo(() => (entries ? matchAll(profile, entries) : []), [entries, profile]);
+  const matches = useMemo(
+    () => (entries ? matchAll(profile, entries, locale) : []),
+    [entries, profile, locale],
+  );
 
-  if (entries === null) return <p>Loading…</p>;
+  if (entries === null) return <p>{t(locale, 'search.loading')}</p>;
 
   const total = STEPS.length;
   const atResults = step >= total;
@@ -69,15 +73,18 @@ export default function Checker({ locale }: { locale: string }) {
 
   // -------- Results screen --------
   if (atResults) {
+    const fitCount = eligible.length + maybe.length;
+    // Split on the literal {n} so the count stays bold in any word order.
+    const rc = t(locale, 'checker.resultsCount', { total: entries.length }).split('{n}');
     return (
       <div className="results">
         <p className="results-count">
-          <strong>{eligible.length + maybe.length}</strong> of {entries.length} schemes may fit you
+          {rc[0]}<strong>{fitCount}</strong>{rc[1]}
         </p>
 
         {eligible.length > 0 && (
           <section>
-            <h2>✅ You likely qualify</h2>
+            <h2>{t(locale, 'checker.eligibleHeading')}</h2>
             {eligible.map((m) => (
               <ResultCard key={m.scheme.id} match={m} locale={locale} />
             ))}
@@ -85,25 +92,23 @@ export default function Checker({ locale }: { locale: string }) {
         )}
         {maybe.length > 0 && (
           <section>
-            <h2>🟡 You may qualify — confirm the conditions</h2>
+            <h2>{t(locale, 'checker.maybeHeading')}</h2>
             {maybe.map((m) => (
               <ResultCard key={m.scheme.id} match={m} locale={locale} />
             ))}
           </section>
         )}
-        {eligible.length + maybe.length === 0 && (
-          <p>No matches. Try changing an answer — leaving fields blank widens the results.</p>
-        )}
+        {eligible.length + maybe.length === 0 && <p>{t(locale, 'checker.noMatches')}</p>}
 
         <div className="results-actions">
           <button className="wz-ghost" onClick={() => setStep(0)}>
-            ← Change answers
+            {t(locale, 'checker.changeAnswers')}
           </button>
           <button className="wz-ghost" onClick={restart}>
-            Start over
+            {t(locale, 'checker.startOver')}
           </button>
         </div>
-        <p className="wizard-privacy">🔒 Your answers stayed in your browser — nothing was sent to any server.</p>
+        <p className="wizard-privacy">{t(locale, 'checker.privacyDone')}</p>
       </div>
     );
   }
@@ -117,17 +122,18 @@ export default function Checker({ locale }: { locale: string }) {
           <span style={{ width: `${(step / total) * 100}%` }} />
         </div>
         <p className="wizard-meta">
-          Step {step + 1} of {total} · {matches.length} schemes match so far · every question is optional
+          {t(locale, 'checker.stepMeta', { step: step + 1, total, n: matches.length })}
         </p>
       </div>
 
-      <h2 className="wizard-q">{QUESTION[id]}</h2>
+      <h2 className="wizard-q">{t(locale, QUESTION_KEY[id])}</h2>
 
       {id === 'age' && (
         <NumberStep
+          locale={locale}
           value={profile.age}
-          suffix="years"
-          placeholder="e.g. 30"
+          suffix={t(locale, 'checker.ageSuffix')}
+          placeholder={t(locale, 'checker.agePlaceholder')}
           onChange={(v) => set({ age: v })}
           onNext={next}
           onSkip={() => {
@@ -140,13 +146,13 @@ export default function Checker({ locale }: { locale: string }) {
       {id === 'gender' && (
         <div className="choice-grid">
           <Choice active={profile.gender === 'female'} onClick={() => choose({ gender: 'female' })}>
-            Woman / Girl
+            {t(locale, 'checker.womanGirl')}
           </Choice>
           <Choice active={profile.gender === 'male'} onClick={() => choose({ gender: 'male' })}>
-            Man / Boy
+            {t(locale, 'checker.manBoy')}
           </Choice>
           <Choice muted onClick={() => choose({ gender: undefined })}>
-            Prefer not to say
+            {t(locale, 'checker.preferNotToSay')}
           </Choice>
         </div>
       )}
@@ -159,21 +165,22 @@ export default function Checker({ locale }: { locale: string }) {
             </Choice>
           ))}
           <Choice active={profile.state === '__other__'} onClick={() => choose({ state: '__other__' })}>
-            Another state / UT
+            {t(locale, 'checker.anotherState')}
           </Choice>
           <Choice muted onClick={() => choose({ state: undefined })}>
-            Prefer not to say
+            {t(locale, 'checker.preferNotToSay')}
           </Choice>
         </div>
       )}
 
       {id === 'income' && (
         <NumberStep
+          locale={locale}
           value={profile.income}
           prefix="₹"
-          suffix="/ year"
-          placeholder="e.g. 250000"
-          help="Add up everyone in your household. Not sure? Skip it."
+          suffix={t(locale, 'checker.incomeSuffix')}
+          placeholder={t(locale, 'checker.incomePlaceholder')}
+          help={t(locale, 'checker.incomeHelp')}
           onChange={(v) => set({ income: v })}
           onNext={next}
           onSkip={() => {
@@ -187,18 +194,18 @@ export default function Checker({ locale }: { locale: string }) {
         <div className="choice-grid">
           {(['GEN', 'OBC', 'SC', 'ST'] as const).map((c) => (
             <Choice key={c} active={profile.caste === c} onClick={() => choose({ caste: c })}>
-              {c === 'GEN' ? 'General' : c}
+              {c === 'GEN' ? t(locale, 'checker.casteGeneral') : c}
             </Choice>
           ))}
           <Choice muted onClick={() => choose({ caste: undefined })}>
-            Prefer not to say
+            {t(locale, 'checker.preferNotToSay')}
           </Choice>
         </div>
       )}
 
       {id === 'occupation' && (
         <>
-          <p className="wizard-help">Tap all that apply.</p>
+          <p className="wizard-help">{t(locale, 'checker.tapAll')}</p>
           <div className="choice-grid choice-grid-tight">
             {occupations.map((o) => (
               <Choice
@@ -212,10 +219,10 @@ export default function Checker({ locale }: { locale: string }) {
           </div>
           <div className="wizard-nav">
             <button className="wz-ghost" onClick={back}>
-              ← Back
+              {t(locale, 'checker.back')}
             </button>
             <button className="wz-primary" onClick={next}>
-              See my results →
+              {t(locale, 'checker.seeResults')}
             </button>
           </div>
         </>
@@ -225,7 +232,7 @@ export default function Checker({ locale }: { locale: string }) {
       {(id === 'gender' || id === 'state' || id === 'caste') && (
         <div className="wizard-nav">
           <button className="wz-ghost" onClick={back} disabled={step === 0}>
-            ← Back
+            {t(locale, 'checker.back')}
           </button>
         </div>
       )}
@@ -257,6 +264,7 @@ function Choice({
 }
 
 function NumberStep({
+  locale,
   value,
   prefix,
   suffix,
@@ -266,6 +274,7 @@ function NumberStep({
   onNext,
   onSkip,
 }: {
+  locale: string;
   value: number | undefined;
   prefix?: string;
   suffix?: string;
@@ -293,10 +302,10 @@ function NumberStep({
       {help && <p className="wizard-help">{help}</p>}
       <div className="wizard-nav">
         <button className="wz-ghost" onClick={onSkip}>
-          Skip
+          {t(locale, 'checker.skip')}
         </button>
         <button className="wz-primary" onClick={onNext}>
-          Continue →
+          {t(locale, 'checker.continue')}
         </button>
       </div>
     </>
@@ -318,7 +327,7 @@ function ResultCard({
           <strong>{scheme.name}</strong>
         </a>
         <span className={`verdict-pill verdict-${verdict}`}>
-          {verdict === 'eligible' ? '✓ Likely eligible' : 'May qualify'}
+          {t(locale, verdict === 'eligible' ? 'checker.likelyEligible' : 'checker.mayQualify')}
         </span>
       </div>
       <p>{scheme.summary}</p>

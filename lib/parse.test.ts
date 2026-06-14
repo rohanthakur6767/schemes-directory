@@ -25,12 +25,21 @@ test('toParsedScheme validates the full LLM shape and converts it', () => {
     name: 'Test Scheme', level: 'central', state: null, categories: ['Health'],
     benefit: { type: 'cash', amount: 6000, frequency: 'yearly', note: null },
     eligibility: { ...full, occupation: ['farmer'], other_flags: ['not_income_tax_payer'] },
-    documents: ['Aadhaar'], official_url: 'https://x.gov.in', notes: 'looks fine',
+    documents: ['Aadhaar'], official_url: 'https://x.gov.in',
+    relevant_links: [
+      { label: 'Guidelines', url: 'https://x.gov.in/guidelines.pdf' },
+      { label: 'Junk', url: 'not a url' }, // dropped by sanitiser
+    ],
+    contacts: { toll_free: ['1800-111-222'], phones: ['abc'], emails: ['help@x.gov.in'] },
+    notes: 'looks fine',
   };
   const p = toParsedScheme(raw);
   assert.equal(p.benefit.amount, 6000);
   assert.equal(p.benefit.note, undefined); // null note dropped
   assert.deepEqual(p.eligibility, { occupation: ['farmer'], other_flags: ['not_income_tax_payer'] });
+  // sanitiser: invalid link/phone dropped, valid ones kept
+  assert.deepEqual(p.relevant_links, [{ label: 'Guidelines', url: 'https://x.gov.in/guidelines.pdf' }]);
+  assert.deepEqual(p.contacts, { toll_free: ['1800-111-222'], phones: [], emails: ['help@x.gov.in'] });
 });
 
 test('toParsedScheme rejects a malformed LLM object', () => {

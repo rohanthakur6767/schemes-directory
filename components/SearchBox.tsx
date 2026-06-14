@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { searchSchemes, type SearchableScheme } from '@/lib/search';
+import { t } from '@/lib/messages';
 
 // One component, two looks: a big box for the hero, a compact one for the nav.
 // Both read the SAME static index (D2/D37) — fetched lazily on first focus, so
@@ -66,11 +67,7 @@ export default function SearchBox({
       <input
         type="search"
         className="search-input"
-        placeholder={
-          variant === 'hero'
-            ? 'Search schemes — e.g. farmer, scholarship, pension'
-            : 'Search schemes…'
-        }
+        placeholder={t(locale, variant === 'hero' ? 'search.placeholderHero' : 'search.placeholderNav')}
         value={q}
         onFocus={() => {
           load();
@@ -83,15 +80,15 @@ export default function SearchBox({
           setOpen(true);
         }}
         onKeyDown={onKeyDown}
-        aria-label="Search schemes"
+        aria-label={t(locale, 'search.label')}
         autoComplete="off"
       />
       {open && q.trim() && (
         <div className="search-results" role="listbox">
           {entries === null ? (
-            <p className="search-msg">Loading…</p>
+            <p className="search-msg">{t(locale, 'search.loading')}</p>
           ) : results.length === 0 ? (
-            <p className="search-msg">No schemes match “{q.trim()}”.</p>
+            <p className="search-msg">{t(locale, 'search.noResults', { q: q.trim() })}</p>
           ) : (
             results.map((r, i) => (
               <a
@@ -104,7 +101,7 @@ export default function SearchBox({
               >
                 <strong>{r.name}</strong>
                 <span>
-                  {r.state ?? 'Central'}
+                  {r.state ?? t(locale, 'common.central')}
                   {r.categories.length ? ` · ${r.categories.slice(0, 2).join(', ')}` : ''}
                 </span>
               </a>

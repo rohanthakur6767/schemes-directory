@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
+import { t } from '@/lib/messages';
 import Checker from './Checker';
 
-export const metadata: Metadata = {
-  title: 'Eligibility checker',
-  description:
-    'Answer a few questions and find Indian government schemes you may be eligible for. ' +
-    'Private — your answers never leave your browser.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: t(locale, 'checker.metaTitle'),
+    description: t(locale, 'checker.metaDescription'),
+  };
+}
 
 export default async function CheckerPage({
   params,
@@ -17,8 +23,8 @@ export default async function CheckerPage({
   return (
     <>
       <header className="checker-head">
-        <h1>Which schemes do you qualify for?</h1>
-        <p>Answer a few quick questions — every one is optional, and your answers never leave your browser.</p>
+        <h1>{t(locale, 'checker.pageH1')}</h1>
+        <p>{t(locale, 'checker.pageIntro')}</p>
       </header>
       <Checker locale={locale} />
     </>
